@@ -1,6 +1,7 @@
 from ..schema.display import Display
 from ..enums.template_match import TemplateMatch
 
+
 class GameArea:
     def __init__(
         self,
@@ -9,9 +10,8 @@ class GameArea:
         method: TemplateMatch,
         menu_accuracy: float,
         news_accuracy: float,
-        home_accuracy: float
-        
-    ) -> None:  
+        home_accuracy: float,
+    ) -> None:
         self._display_identify = display_identify
         self._aspect_ratio = Display(**aspect_ratio)
         self._method = method
@@ -21,15 +21,10 @@ class GameArea:
         self._home_accuracy = home_accuracy
 
     def __repr__(self) -> str:
-       return (
+        return (
             f"Display ID {self._display_identify} "
             f"Aspect Ratio {self._aspect_ratio} "
-        ) 
-
+        )
 
     def accuracy(self) -> float:
-        return (
-            self._menu_acurracy +
-            self._news_accuracy +
-            self._home_accuracy
-        )
+        return self._menu_acurracy + self._news_accuracy + self._home_accuracy

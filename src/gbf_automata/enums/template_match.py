@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class TemplateMatch(IntEnum):
     TM_SQDIFF = 0
     TM_SQDIFF_NORMED = 1
