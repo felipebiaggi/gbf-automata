@@ -16,7 +16,7 @@ parse.add_argument("-n", "--news", type=sanitize_filepath_arg)
 parse.add_argument("-o", "--home", type=sanitize_filepath_arg)
 
 
-class CalibrationScreen:
+class CalibrateScreen:
     def __init__(
         self,
         display,
@@ -41,11 +41,9 @@ class CalibrationScreen:
 
     def __repr__(self) -> str:
         return (
-            f"Display: {self._display} "
-            f"Menu Accuracy: {self._menu_accuracy} "
-            f"News Accuracy: {self._news_accuracy} "
-            f"Home Accuracy: {self._home_accuracy} "
-            f"Aspect Ratio: {self._aspect_ratio}"
+            f"Menu Accuracy: {self._menu_accuracy:.4f} "
+            f"News Accuracy: {self._news_accuracy:.4f} "
+            f"Home Accuracy: {self._home_accuracy:.4f} "
         )
 
     def __iter__(self):
@@ -66,9 +64,20 @@ class CalibrationScreen:
             "mon": self._display,
         }
 
+    def abort(self, threshold: float = 0.9) -> bool:
+        if self._home_accuracy <= threshold:
+            return True
+
+        if self._menu_accuracy <= threshold:
+            return True
+
+        if self._news_accuracy <= threshold:
+            return True
+
+        return False
+
 
 if __name__ == "__main__":
-
     args = parse.parse_args()
 
     template_image_menu = cv.imread(args.menu, cv.IMREAD_UNCHANGED)
@@ -80,7 +89,7 @@ if __name__ == "__main__":
     w_menu, h_menu = template_image_menu.shape[::-1]
     w_news, h_news = template_image_news.shape[::-1]
     w_home, h_home = template_image_home.shape[::-1]
-    
+
     with mss.mss() as sct:
         while True:
             last_time = time.time()
@@ -91,7 +100,6 @@ if __name__ == "__main__":
                 screenshot = np.array(sct.grab(monitor))
 
                 screenshot = cv.cvtColor(screenshot, cv.COLOR_RGBA2GRAY)
-
 
                 res_menu = cv.matchTemplate(
                     template_image_menu, screenshot, cv.TM_SQDIFF_NORMED
@@ -111,7 +119,7 @@ if __name__ == "__main__":
                 min_val_home, _, min_loc_home, _ = cv.minMaxLoc(res_home)
 
                 search.append(
-                    CalibrationScreen(
+                    CalibrateScreen(
                         display=(index + 1),
                         aspect_ratio=monitor,
                         menu_accuracy=(1 - min_val_menu),
@@ -124,20 +132,22 @@ if __name__ == "__main__":
                     )
                 )
 
-            result = max(
+            result: CalibrateScreen = max(
                 search,
                 key=lambda screen: screen._menu_accuracy
                 + screen._news_accuracy
                 + screen._home_accuracy,
             )
 
+            if result.abort():
+                cv.destroyAllWindows
+                break
+
             sct_img = sct.grab(result.game_area())
 
             img_show = np.array(sct_img)
 
             cv.imshow("", cv.cvtColor(img_show, cv.COLOR_RGBA2GRAY))
-
-            print(f"fps: {1 / (time.time() - last_time)}")
 
             if cv.waitKey(25) & 0xFF == ord("q"):
                 cv.destroyAllWindows
