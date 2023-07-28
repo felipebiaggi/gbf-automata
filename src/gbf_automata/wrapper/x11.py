@@ -61,7 +61,7 @@ functions = [
             c_int,
             c_int,
         ],
-        c_void_p
+        c_void_p,
     ),
     (xlib.XFlush, [c_void_p], c_void_p),
 ]
