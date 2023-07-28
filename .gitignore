@@ -1,0 +1,16 @@
+# Arquivos Python Gerados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ambiente Virtual
+venv/
+env/
+*.venv/
+
+# Dependencias
+dist/
+build/
+*.egg-info/
+
