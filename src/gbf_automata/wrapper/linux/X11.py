@@ -1,5 +1,6 @@
 import logging
 import os
+import multiprocessing
 from typing import Tuple
 from ctypes.util import find_library
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
@@ -85,6 +86,9 @@ functions = [
 
 class Pointer(PointerBase):
     def __init__(self) -> None:
+
+        self._lock = multiprocessing.Lock()
+
         if not ENV_DISPLAY:
             raise GBFAutomataError("Environment Display not found")
 
@@ -104,32 +108,34 @@ class Pointer(PointerBase):
         self._xlib.XCloseDisplay(self._display)
 
     def get_position(self) -> Tuple[int, int]:
-        _root_id = c_char_p()
-        _child_id = c_char_p()
-        _root_x = c_int()
-        _root_y = c_int()
-        _win_x = c_int()
-        _win_y = c_int()
-        _mask = c_uint()
- 
-        self._xlib.XQueryPointer(
-            self._display,
-            self._root,
-            byref(_root_id),
-            byref(_child_id),
-            byref(_root_x),
-            byref(_root_y),
-            byref(_win_x),
-            byref(_win_y),
-            byref(_mask),
-        )
+        with self._lock:
+            _root_id = c_char_p()
+            _child_id = c_char_p()
+            _root_x = c_int()
+            _root_y = c_int()
+            _win_x = c_int()
+            _win_y = c_int()
+            _mask = c_uint()
+     
+            self._xlib.XQueryPointer(
+                self._display,
+                self._root,
+                byref(_root_id),
+                byref(_child_id),
+                byref(_root_x),
+                byref(_root_y),
+                byref(_win_x),
+                byref(_win_y),
+                byref(_mask),
+            )
 
         return (_root_x.value, _root_y.value)
 
     def set_position(self, x: int, y: int) -> None:
-        self._xlib.XWarpPointer(self._display, 0, self._root, 0, 0, 0, 0, x, y)
+        with self._lock:
+            self._xlib.XWarpPointer(self._display, 0, self._root, 0, 0, 0, 0, x, y)
 
-        self._xlib.XFlush(self._display)
+            self._xlib.XFlush(self._display)
 
     def _define_cfunctions(self) -> None:
         for function, argtypes, restype in functions:

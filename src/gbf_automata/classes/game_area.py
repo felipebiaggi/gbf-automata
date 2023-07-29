@@ -28,3 +28,5 @@ class GameArea:
 
     def accuracy(self) -> float:
         return self._menu_acurracy + self._news_accuracy + self._home_accuracy
+
+    
