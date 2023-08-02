@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 _X11 = find_library("X11")
 ENV_DISPLAY = os.environ["DISPLAY"].encode("utf-8")
 
-functions = [
+cfunctions = [
     (
         "XOpenDisplay",
         [
@@ -138,7 +138,7 @@ class Pointer(PointerBase):
             self._xlib.XFlush(self._display)
 
     def _define_cfunctions(self) -> None:
-        for function, argtypes, restype in functions:
+        for function, argtypes, restype in cfunctions:
             method = getattr(self._xlib, function)
             method.argtypes = argtypes
             method.restype = restype
