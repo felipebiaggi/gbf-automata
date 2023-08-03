@@ -1,8 +1,8 @@
 import logging
-import os
 import multiprocessing
 from typing import Tuple
 from ctypes.util import find_library
+from gbf_automata.util.settings import settings
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
 from gbf_automata.wrapper.base import PointerBase
 from ctypes import (
@@ -20,7 +20,6 @@ from ctypes import (
 logger = logging.getLogger(__name__)
 
 _X11 = find_library("X11")
-ENV_DISPLAY = os.environ["DISPLAY"].encode("utf-8")
 
 cfunctions = [
     (
@@ -86,11 +85,7 @@ cfunctions = [
 
 class Pointer(PointerBase):
     def __init__(self) -> None:
-
         self._lock = multiprocessing.Lock()
-
-        if not ENV_DISPLAY:
-            raise GBFAutomataError("Environment Display not found")
 
         if not _X11:
             raise GBFAutomataError("X11 libray not found")
@@ -99,7 +94,7 @@ class Pointer(PointerBase):
 
         self._define_cfunctions()
 
-        self._display = self._xlib.XOpenDisplay(ENV_DISPLAY)
+        self._display = self._xlib.XOpenDisplay(settings.display.encode("utf-8"))
 
         self._root = self._xlib.XDefaultRootWindow(self._display)
 
@@ -116,7 +111,7 @@ class Pointer(PointerBase):
             _win_x = c_int()
             _win_y = c_int()
             _mask = c_uint()
-     
+
             self._xlib.XQueryPointer(
                 self._display,
                 self._root,

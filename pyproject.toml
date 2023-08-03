@@ -18,6 +18,7 @@ pathvalidate = "^3.0.0"
 mss = "^9.0.1"
 black = "^23.7.0"
 pydantic = "^2.1.1"
+pydantic-settings = "^2.0.2"
 
 [tool.poetry.scripts]
 start = "gbf_ocr.main:start"

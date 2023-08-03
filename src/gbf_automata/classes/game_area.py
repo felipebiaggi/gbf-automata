@@ -1,5 +1,5 @@
-from ..schema.display import Display
-from ..enums.template_match import TemplateMatch
+from gbf_automata.schema.display import Display
+from gbf_automata.enums.template_match import TemplateMatch
 
 
 class GameArea:
@@ -28,5 +28,3 @@ class GameArea:
 
     def accuracy(self) -> float:
         return self._menu_acurracy + self._news_accuracy + self._home_accuracy
-
-    
