@@ -2,6 +2,8 @@ import argparse
 import cv2 as cv
 from pathvalidate.argparse import sanitize_filepath_arg
 from matplotlib import pyplot as plt
+from gbf_automata.schema.image_area import ImageArea
+from gbf_automata.enums.template_match import TemplateMatch
 
 parse = argparse.ArgumentParser(
     prog="Template matching",
@@ -13,31 +15,37 @@ parse.add_argument("-t", "--template", type=sanitize_filepath_arg)
 if __name__ == "__main__":
     args = parse.parse_args()
 
-    image_rgb = cv.imread(args.image)
+    template_rgb = cv.imread(args.template)
 
-    image_gray = cv.cvtColor(image_rgb, cv.COLOR_BGR2GRAY)
+    template_gray = cv.cvtColor(template_rgb, cv.COLOR_BGR2GRAY)
 
-    template = cv.imread(args.template, cv.IMREAD_UNCHANGED)
+    image = cv.imread(args.image, cv.IMREAD_UNCHANGED)
 
-    w, h = template.shape[::-1]
+    w, h = image.shape[::-1]
 
     print(w)
     print(h)
 
-    method = cv.TM_SQDIFF
+    method = TemplateMatch.TM_CCORR_NORMED
 
-    res = cv.matchTemplate(image_gray, template, method)
+    res = cv.matchTemplate(template_gray, image, method)
 
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+    
+    image_area = ImageArea(
+        method=method,
+        image_width=w,
+        image_height=h,
+        min_val=min_val,
+        max_val=max_val,
+        min_loc=min_loc,
+        max_loc=max_loc
+    )
 
-    top_left = min_loc
-    bottom_right = (top_left[0] + w, top_left[1] + h)
+    top_left, bottom_right = image_area.plot_area()
 
-    print(top_left)
-    print(bottom_right)
+    cv.rectangle(template_rgb, top_left, bottom_right, (0, 0, 255), 4)
 
-    cv.rectangle(image_rgb, top_left, bottom_right, (0, 0, 255), 4)
-
-    plt.imshow(cv.cvtColor(image_rgb, cv.COLOR_BGR2RGB))
+    plt.imshow(cv.cvtColor(template_rgb, cv.COLOR_BGR2RGB))
 
     plt.show()
