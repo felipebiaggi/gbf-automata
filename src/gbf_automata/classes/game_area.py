@@ -1,26 +1,20 @@
 from gbf_automata.schema.display import Display
-from gbf_automata.enums.template_match import TemplateMatch
-
+from gbf_automata.schema.image_area import ImageModel
 
 class GameArea:
     def __init__(
         self,
         display_identify: int,
         aspect_ratio: dict,
-        method: TemplateMatch,
-        menu_accuracy: float,
-        news_accuracy: float,
-        home_accuracy: float,
+        menu: ImageModel,
+        news: ImageModel,
+        home: ImageModel
     ) -> None:
         self._display_identify = display_identify
         self._aspect_ratio = Display(**aspect_ratio)
-        self._method = method
-
-        self._menu_acurracy = menu_accuracy
-        self._news_accuracy = news_accuracy
-        self._home_accuracy = home_accuracy
-
-
+        self._menu = menu
+        self._news = news
+        self._home = home
 
     def __repr__(self) -> str:
         return (
@@ -29,4 +23,13 @@ class GameArea:
         )
 
     def accuracy(self) -> float:
-        return self._menu_acurracy + self._news_accuracy + self._home_accuracy
+        return (self._menu.accuracy() + self._news.accuracy() + self._home.accuracy())
+
+    def game_dimension(self) -> dict:
+        return {
+            "top": self._aspect_ratio.top + self._news.min_loc[1],
+            "left": self._aspect_ratio.left + self._news.min_loc[0],
+            "width": self._aspect_ratio.width - (self._aspect_ratio.width - self._menu.min_loc[0] + self._menu.image_width) - self._news.min_loc[0],
+            "height": self._aspect_ratio.height - (self._aspect_ratio.height - self._home.min_loc[1] + self._home.image_height) - self._news.min_loc[1],
+            "mon": self._display_identify
+        }

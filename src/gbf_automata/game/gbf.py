@@ -3,10 +3,9 @@ import numpy as np
 import mss
 from typing import List
 
-from numpy.random import f
-
 from gbf_automata.classes.game_area import GameArea
 from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.schema.image_area import ImageModel
 from gbf_automata.util.settings import settings
 
 class GBFGame:
@@ -17,7 +16,10 @@ class GBFGame:
 
         self._calibrate_game_area()
 
-    def _calibrate_game_area(self) -> bool:        
+
+    # Abstraction leak???
+    # TODO: refactory
+    def _calibrate_game_area(self):        
             
         image_menu = cv.imread(settings.image_menu, cv.IMREAD_UNCHANGED)    
         image_news = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
@@ -31,7 +33,7 @@ class GBFGame:
 
         with mss.mss() as sct:
             
-            for index, monitor in enumerate(sct.monitors[1:]):
+            for index, monitor in enumerate(sct.monitors[2:]):
                 display_template = np.asarray(sct.grab(monitor))
 
                 display_template = cv.cvtColor(
@@ -54,22 +56,63 @@ class GBFGame:
                 min_val_news, max_val_news, min_loc_news, max_loc_news = cv.minMaxLoc(res_news)
                 min_val_home, max_val_home, min_loc_home, max_loc_home = cv.minMaxLoc(res_home)
 
+                menu_model = ImageModel(
+                    method=self._method,
+                    image_width=w_menu,
+                    image_height=h_menu,
+                    min_val=min_val_menu,
+                    max_val=max_val_menu,
+                    min_loc=min_loc_menu,
+                    max_loc=max_loc_menu,
+                )
+
+                news_model = ImageModel(
+                    method=self._method,
+                    image_width=w_news,
+                    image_height=h_news,
+                    min_val=min_val_news,
+                    max_val=max_val_news,
+                    min_loc=min_loc_news,
+                    max_loc=max_loc_news
+                )
+                
+                home_model = ImageModel(
+                    method=self._method,
+                    image_width=w_home,
+                    image_height=h_home,
+                    min_val=min_val_home,
+                    max_val=max_val_home,
+                    min_loc=min_loc_home,
+                    max_loc=max_loc_home
+                )
+
                 search.append(
                     GameArea(
                         display_identify=(index + 1),
                         aspect_ratio=monitor,
-                        method=self._method,
-                        menu_accuracy=(1 - min_val_menu),
-                        news_accuracy=(1 - min_val_news),
-                        home_accuracy=(1 - min_val_home)
-                    )
+                        menu=menu_model,
+                        home=home_model,
+                        news=news_model
+                     )
                 )
 
-            result = max(search, key=lambda game_area: game_area.accuracy())
-
-        return False
-
+        self._game_area = max(search, key=lambda game_area: game_area.accuracy())
 
 if __name__ == "__main__":
-     game = GBFGame()
-       
+    game = GBFGame()
+    print(game._game_area.game_dimension())
+
+    while True:
+        with mss.mss() as sct:
+            img = sct.grab(game._game_area.game_dimension())
+            
+            img_show = np.asarray(img)
+
+            cv.imshow("", cv.cvtColor(img_show, cv.COLOR_RGBA2GRAY))
+
+            if cv.waitKey(25) & 0xFF == ord("q"):
+                cv.destroyAllWindows
+                break
+
+        
+
