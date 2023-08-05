@@ -6,7 +6,7 @@ __pycache__/
 
 # Ambiente Virtual
 venv/
-env/
+env/ 
 *.venv/
 
 # Dependencias

@@ -20,6 +20,8 @@ class GameArea:
         self._news_accuracy = news_accuracy
         self._home_accuracy = home_accuracy
 
+
+
     def __repr__(self) -> str:
         return (
             f"Display ID {self._display_identify} "
