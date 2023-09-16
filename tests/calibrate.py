@@ -55,8 +55,12 @@ class CalibrateScreen:
         return {
             "top": self._aspect_ratio["top"] + self._top_left_height,
             "left": self._aspect_ratio["left"] + self._top_left_width,
-            "width": self._aspect_ratio["width"] - (self._aspect_ratio["width"] - self._top_right_width) - self._top_left_width,
-            "height": self._aspect_ratio["height"] - (self._aspect_ratio["height"] - self._bottom_right_height) - self._top_left_height,
+            "width": self._aspect_ratio["width"]
+            - (self._aspect_ratio["width"] - self._top_right_width)
+            - self._top_left_width,
+            "height": self._aspect_ratio["height"]
+            - (self._aspect_ratio["height"] - self._bottom_right_height)
+            - self._top_left_height,
             "mon": self._display,
         }
 
@@ -114,7 +118,6 @@ if __name__ == "__main__":
                 min_val_news, _, min_loc_news, _ = cv.minMaxLoc(res_news)
                 min_val_home, _, min_loc_home, _ = cv.minMaxLoc(res_home)
 
-
                 print(monitor)
 
                 search.append(
@@ -141,7 +144,6 @@ if __name__ == "__main__":
             if result.abort():
                 cv.destroyAllWindows
                 break
-
 
             print(result.game_area())
 

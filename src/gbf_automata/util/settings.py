@@ -10,10 +10,12 @@ class Settings(BaseSettings):
     image_menu: str = Field(default=None)
     image_news: str = Field(default=None)
     image_home: str = Field(default=None)
+    image_back: str = Field(default=None)
+    image_reload: str = Field(default=None)
 
     class Config:
         env_file = ".env"
         envi_file_encoding = "utf-8"
 
 
-settings = Settings()       
+settings = Settings()

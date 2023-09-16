@@ -31,7 +31,7 @@ if __name__ == "__main__":
     res = cv.matchTemplate(template_gray, image, method)
 
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
-    
+
     image_area = ImageArea(
         method=method,
         image_width=w,
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         min_val=min_val,
         max_val=max_val,
         min_loc=min_loc,
-        max_loc=max_loc
+        max_loc=max_loc,
     )
 
     top_left, bottom_right = image_area.plot_area()

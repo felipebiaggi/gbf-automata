@@ -51,11 +51,15 @@ if __name__ == "__main__":
                 image=image_home, templ=display_template, method=MATCH_METHOD
             )
 
-            min_val_menu, max_val_menu, min_loc_menu, max_loc_menu = cv.minMaxLoc(res_menu)
-            min_val_news, max_val_news, min_loc_news, max_loc_news = cv.minMaxLoc(res_news)
-            min_val_home, max_val_home, min_loc_home, max_loc_home = cv.minMaxLoc(res_home)
-
-
+            min_val_menu, max_val_menu, min_loc_menu, max_loc_menu = cv.minMaxLoc(
+                res_menu
+            )
+            min_val_news, max_val_news, min_loc_news, max_loc_news = cv.minMaxLoc(
+                res_news
+            )
+            min_val_home, max_val_home, min_loc_home, max_loc_home = cv.minMaxLoc(
+                res_home
+            )
 
             search.append(
                 GameArea(
