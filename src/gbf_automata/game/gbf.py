@@ -1,21 +1,36 @@
+from pprint import pprint
 import cv2 as cv
+from matplotlib import logging
 import numpy as np
 import mss
-from typing import List
+import time
+from typing import List, Union
 
 from gbf_automata.classes.game_area import GameArea
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.schema.image_area import ImageModel
 from gbf_automata.util.settings import settings
+from gbf_automata.util.logger import get_logger
+from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
+
+logger = get_logger(__name__)
 
 class GBFGame:
 
     def __init__(self):
         self._method = TemplateMatch.TM_SQDIFF_NORMED
-        self._game_area = None
+        self._game_area: Union[None, GameArea] = None
+        self._min_accuracy = 0.85
+
 
         self._calibrate_game_area()
 
+
+    def get_area(self) -> dict:
+        if self._game_area:
+            return self._game_area.area()
+
+        return {}
 
     # Abstraction leak???
     # TODO: refactory
@@ -64,6 +79,7 @@ class GBFGame:
                     max_val=max_val_menu,
                     min_loc=min_loc_menu,
                     max_loc=max_loc_menu,
+                    correction=min_loc_news
                 )
 
                 news_model = ImageModel(
@@ -73,9 +89,11 @@ class GBFGame:
                     min_val=min_val_news,
                     max_val=max_val_news,
                     min_loc=min_loc_news,
-                    max_loc=max_loc_news
+                    max_loc=max_loc_news,
+                    correction=min_loc_news
                 )
-                
+
+
                 home_model = ImageModel(
                     method=self._method,
                     image_width=w_home,
@@ -83,9 +101,10 @@ class GBFGame:
                     min_val=min_val_home,
                     max_val=max_val_home,
                     min_loc=min_loc_home,
-                    max_loc=max_loc_home
+                    max_loc=max_loc_home,
+                    correction=min_loc_news
                 )
-
+                
                 search.append(
                     GameArea(
                         display_identify=(index + 1),
@@ -97,22 +116,58 @@ class GBFGame:
                 )
 
         self._game_area = max(search, key=lambda game_area: game_area.accuracy())
+        
+        for accuracy in self._game_area.accuracy():
+            if accuracy < self._min_accuracy:
+                raise GBFAutomataError(f"Accuracy Error - Threshold: <{self._min_accuracy}> - Mensured: <{accuracy}>")
+
+
+        logger.info('#########################################################################################')
+        logger.info(f'Display Info: <{self._game_area}>')
+        logger.info(f'Game Area: <{self._game_area.area()}>')
+        logger.info(f'News Coordinates: <{self._game_area._news.plot_area()}>')
+        logger.info(f'Menu Coordinates: <{self._game_area._menu.plot_area()}>')
+        logger.info(f'Home Coordinates: <{self._game_area._home.plot_area()}>')
+        logger.info('#########################################################################################')
+
+
 
 if __name__ == "__main__":
     game = GBFGame()
-    print(game._game_area.game_dimension())
 
-    while True:
-        with mss.mss() as sct:
-            img = sct.grab(game._game_area.game_dimension())
-            
-            img_show = np.asarray(img)
 
-            cv.imshow("", cv.cvtColor(img_show, cv.COLOR_RGBA2GRAY))
-
-            if cv.waitKey(25) & 0xFF == ord("q"):
-                cv.destroyAllWindows
-                break
-
+# if __name__ == "__main__":
+#     game = GBFGame()
+#
+#     while True:
+#         last_time = time.time()
+#
+#         with mss.mss() as sct:      
+#
+#             img = sct.grab(game.get_area())
+#
+#             img_show = np.asarray(img)
+#
+#             menu_top_left, menu_bottom_right = game._game_area._menu.plot_area()
+#
+#             cv.rectangle(img_show, menu_top_left, menu_bottom_right, (0, 0, 255), 2)
+#
+#             news_top_left, news_bottom_right = game._game_area._news.plot_area()
+#
+#             cv.rectangle(img_show, news_top_left , news_bottom_right, (0, 0, 255), 2)
+#
+#             home_top_left, home_bottom_right = game._game_area._home.plot_area()
+#
+#             cv.rectangle(img_show, home_bottom_right, home_top_left, (0, 0, 255), 2)
+#
+#             cv.imshow("", img_show)
+#
+#             game._calibrate_game_area()
+#             
+#             if cv.waitKey(25) & 0xFF == ord("q"):
+#                 cv.destroyAllWindows
+#                 break
+#
+#         logger.debug(f'fps: <{1 / (time.time() - last_time)}>')
         
 

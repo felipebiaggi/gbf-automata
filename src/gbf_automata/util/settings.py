@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     display: str = Field(default=None)
     log_level: str = "INFO"
-    log_format: str = "$(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    log_format: str = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
 
     image_menu: str = Field(default=None)
     image_news: str = Field(default=None)

@@ -1,5 +1,6 @@
 from gbf_automata.schema.display import Display
 from gbf_automata.schema.image_area import ImageModel
+from typing import List
 
 class GameArea:
     def __init__(
@@ -12,9 +13,9 @@ class GameArea:
     ) -> None:
         self._display_identify = display_identify
         self._aspect_ratio = Display(**aspect_ratio)
-        self._menu = menu
-        self._news = news
-        self._home = home
+        self._menu: ImageModel = menu
+        self._news: ImageModel = news
+        self._home: ImageModel = home
 
     def __repr__(self) -> str:
         return (
@@ -22,14 +23,43 @@ class GameArea:
             f"Aspect Ratio {self._aspect_ratio} "
         )
 
-    def accuracy(self) -> float:
-        return (self._menu.accuracy() + self._news.accuracy() + self._home.accuracy())
+    def accuracy(self) -> List[float]:
+        return [self._menu.accuracy(), self._news.accuracy(), self._home.accuracy()]
 
-    def game_dimension(self) -> dict:
+
+                              ### Display ###
+    ##########################################################################
+    #                  
+    #                    (Game Area)
+    #  (top, left) -> +--------------+
+    #                 |              |
+    #                 |              | 
+    #                 |              |
+    #                 |              |
+    #                 |              |
+    #                 |              |
+    #                 |              |
+    #                 |              |
+    #                 +--------------+
+    #
+    #
+    #
+
+
+    def area(self) -> dict:
         return {
             "top": self._aspect_ratio.top + self._news.min_loc[1],
             "left": self._aspect_ratio.left + self._news.min_loc[0],
-            "width": self._aspect_ratio.width - (self._aspect_ratio.width - self._menu.min_loc[0] + self._menu.image_width) - self._news.min_loc[0],
-            "height": self._aspect_ratio.height - (self._aspect_ratio.height - self._home.min_loc[1] + self._home.image_height) - self._news.min_loc[1],
+            "width": self._aspect_ratio.width - (self._aspect_ratio.width - (self._menu.min_loc[0] + self._menu.image_width)) - self._news.min_loc[0],
+            "height": self._aspect_ratio.height - (self._aspect_ratio.height - (self._home.min_loc[1] + self._home.image_height)) - self._news.min_loc[1],
+            "mon": self._display_identify
+        }
+
+    def full_area(self) -> dict:
+        return {
+            "top": self._aspect_ratio.top,
+            "left": self._aspect_ratio.left,
+            "width": self._aspect_ratio.width,
+            "height": self._aspect_ratio.height,
             "mon": self._display_identify
         }
