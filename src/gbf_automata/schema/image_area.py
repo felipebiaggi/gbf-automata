@@ -32,3 +32,9 @@ class ImageModel(BaseModel):
 
     def accuracy(self) -> float:
         return 1 - self.min_val
+
+    def center(self) -> Tuple[float, float]:
+        return (
+            self.min_loc[0] + (self.image_width / 2),
+            self.min_loc[1] + (self.image_height / 2) 
+        )

@@ -1,6 +1,6 @@
 from gbf_automata.schema.display import Display
 from gbf_automata.schema.image_area import ImageModel
-from typing import List
+from typing import List, Tuple
 
 
 class GameArea:
@@ -12,7 +12,7 @@ class GameArea:
         news: ImageModel,
         home: ImageModel,
         back: ImageModel,
-        reload: ImageModel
+        reload: ImageModel,
     ) -> None:
         self._display_identify = display_identify
         self._aspect_ratio = Display(**aspect_ratio)
@@ -29,7 +29,13 @@ class GameArea:
         )
 
     def accuracy(self) -> List[float]:
-        return [self._menu.accuracy(), self._news.accuracy(), self._home.accuracy(), self._back.accuracy(), self._reload.accuracy()]
+        return [
+            self._menu.accuracy(),
+            self._news.accuracy(),
+            self._home.accuracy(),
+            self._back.accuracy(),
+            self._reload.accuracy(),
+        ]
 
         ### Display ###
 
@@ -77,3 +83,9 @@ class GameArea:
             "height": self._aspect_ratio.height,
             "mon": self._display_identify,
         }
+
+
+    def home_position(self) -> Tuple[float, float]:
+        print(self._aspect_ratio)
+        x_home, y_home = self._home.center()
+        return (x_home + self._aspect_ratio.left, y_home)

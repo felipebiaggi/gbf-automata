@@ -5,6 +5,7 @@ import numpy as np
 import mss
 import time
 from typing import List, Union
+import pyautogui
 
 from gbf_automata.classes.game_area import GameArea
 from gbf_automata.enums.template_match import TemplateMatch
@@ -135,7 +136,7 @@ class GBFGame:
                     max_val=max_val_back,
                     min_loc=min_loc_back,
                     max_loc=max_loc_back,
-                    correction=min_loc_news
+                    correction=min_loc_news,
                 )
 
                 reload_model = ImageModel(
@@ -146,7 +147,7 @@ class GBFGame:
                     max_val=max_val_reload,
                     min_loc=min_loc_reload,
                     max_loc=max_loc_reload,
-                    correction=min_loc_news
+                    correction=min_loc_news,
                 )
 
                 search.append(
@@ -157,7 +158,7 @@ class GBFGame:
                         home=home_model,
                         news=news_model,
                         back=back_model,
-                        reload=reload_model
+                        reload=reload_model,
                     )
                 )
 
@@ -183,9 +184,23 @@ class GBFGame:
             "#########################################################################################"
         )
 
+    def move_home(self):
+        logger.info(
+            "#########################################################################################"
+        )
+        logger.info(f"Mouse start position: <{pyautogui.position()}>")
+        logger.info("Home Center: x: <{}> | y: <{}>".format(*self._game_area._home.center()))
+
+        pyautogui.moveTo(*self._game_area.home_position())
+
+    
+    def start(self, context = None):
+        self.move_home()
+
 
 if __name__ == "__main__":
     game = GBFGame()
+    game.start()
 
 
 # if __name__ == "__main__":
