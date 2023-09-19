@@ -30,7 +30,11 @@ class GameArea:
 
     def accuracy(self) -> List[float]:
         return [
+            self.menu.accuracy(),
+            self.news.accuracy(),
             self.home.accuracy(),
+            self.back.accuracy(),
+            self.reload.accuracy(),
         ]
 
         ### Display ###
@@ -79,3 +83,4 @@ class GameArea:
             "height": self.aspect_ratio.height,
             "mon": self.display_identify,
         }
+
