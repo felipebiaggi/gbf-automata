@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Tuple
 from gbf_automata.enums.template_match import TemplateMatch
+from cv2.typing import Point
 
 
 class ImageModel(BaseModel):
@@ -9,10 +10,10 @@ class ImageModel(BaseModel):
     image_height: int
     min_val: float
     max_val: float
-    min_loc: Tuple
-    max_loc: Tuple
+    min_loc: Point
+    max_loc: Point
 
-    correction: Tuple
+    correction: Point
 
     def plot_area(self) -> Tuple[Tuple[int, int], Tuple[int, int]]:
         if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
@@ -36,5 +37,5 @@ class ImageModel(BaseModel):
     def center(self) -> Tuple[float, float]:
         return (
             self.min_loc[0] + (self.image_width / 2),
-            self.min_loc[1] + (self.image_height / 2) 
+            self.min_loc[1] + (self.image_height / 2),
         )

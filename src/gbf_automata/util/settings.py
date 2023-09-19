@@ -1,5 +1,6 @@
-from pydantic import Field, FilePath
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
+from gbf_automata.enums.content_type import ContentType
 
 
 class Settings(BaseSettings):
@@ -12,6 +13,16 @@ class Settings(BaseSettings):
     image_home: str = Field(default=None)
     image_back: str = Field(default=None)
     image_reload: str = Field(default=None)
+    image_arcarum: str = Field(default=None)
+
+    content_type: str = Field(default=None)
+
+    @field_validator("content_type")
+    def str_to_enum(cls, value: str) -> ContentType:
+        for member in ContentType:
+            if member.name.lower() == value.lower():
+                return member
+        raise TypeError("Invalid Enum")
 
     class Config:
         env_file = ".env"
@@ -19,3 +30,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+if __name__ == "__main__":
+    print(settings)

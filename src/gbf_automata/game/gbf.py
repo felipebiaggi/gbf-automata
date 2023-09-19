@@ -1,5 +1,6 @@
 from pprint import pprint
 import cv2 as cv
+from cv2.gapi.wip.draw import Image
 from matplotlib import logging
 import numpy as np
 import mss
@@ -13,21 +14,24 @@ from gbf_automata.schema.image_area import ImageModel
 from gbf_automata.util.settings import settings
 from gbf_automata.util.logger import get_logger
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
+from gbf_automata.enums.content_type import ContentType
+
 
 logger = get_logger(__name__)
 
 
 class GBFGame:
     def __init__(self):
-        self._method = TemplateMatch.TM_SQDIFF_NORMED
-        self._game_area: Union[None, GameArea] = None
         self._min_accuracy = 0.85
+        self._correction = (0, 0)
 
-        self._calibrate_game_area()
+        self.method = TemplateMatch.TM_SQDIFF_NORMED
+        self.max_attemps = 5
+        self.game_area: GameArea = self._calibrate_game_area()
 
     def get_area(self) -> dict:
-        if self._game_area:
-            return self._game_area.area()
+        if self.game_area:
+            return self.game_area.area()
 
         return {}
 
@@ -49,7 +53,7 @@ class GBFGame:
         search: List = []
 
         with mss.mss() as sct:
-            for index, monitor in enumerate(sct.monitors[2:]):
+            for index, monitor in enumerate(sct.monitors[:1]):
                 display_template = np.asarray(sct.grab(monitor))
 
                 display_template = cv.cvtColor(
@@ -57,23 +61,23 @@ class GBFGame:
                 )
 
                 res_menu = cv.matchTemplate(
-                    image=image_menu, templ=display_template, method=self._method
+                    image=image_menu, templ=display_template, method=self.method
                 )
 
                 res_news = cv.matchTemplate(
-                    image=image_news, templ=display_template, method=self._method
+                    image=image_news, templ=display_template, method=self.method
                 )
 
                 res_home = cv.matchTemplate(
-                    image=image_home, templ=display_template, method=self._method
+                    image=image_home, templ=display_template, method=self.method
                 )
 
                 res_back = cv.matchTemplate(
-                    image=image_back, templ=display_template, method=self._method
+                    image=image_back, templ=display_template, method=self.method
                 )
 
                 res_reload = cv.matchTemplate(
-                    image=image_reload, templ=display_template, method=self._method
+                    image=image_reload, templ=display_template, method=self.method
                 )
 
                 min_val_menu, max_val_menu, min_loc_menu, max_loc_menu = cv.minMaxLoc(
@@ -94,60 +98,62 @@ class GBFGame:
                     min_loc_reload,
                     max_loc_reload,
                 ) = cv.minMaxLoc(res_reload)
+    
+                self._correction = min_loc_news  
 
                 menu_model = ImageModel(
-                    method=self._method,
+                    method=self.method,
                     image_width=w_menu,
                     image_height=h_menu,
                     min_val=min_val_menu,
                     max_val=max_val_menu,
                     min_loc=min_loc_menu,
                     max_loc=max_loc_menu,
-                    correction=min_loc_news,
+                    correction=self._correction,
                 )
 
                 news_model = ImageModel(
-                    method=self._method,
+                    method=self.method,
                     image_width=w_news,
                     image_height=h_news,
                     min_val=min_val_news,
                     max_val=max_val_news,
                     min_loc=min_loc_news,
                     max_loc=max_loc_news,
-                    correction=min_loc_news,
+                    correction=self._correction,
                 )
 
                 home_model = ImageModel(
-                    method=self._method,
+                    method=self.method,
                     image_width=w_home,
                     image_height=h_home,
                     min_val=min_val_home,
                     max_val=max_val_home,
                     min_loc=min_loc_home,
                     max_loc=max_loc_home,
-                    correction=min_loc_news,
+                    correction=self._correction,
                 )
 
                 back_model = ImageModel(
-                    method=self._method,
+                    method=self.method,
                     image_width=w_back,
                     image_height=h_back,
                     min_val=min_val_back,
                     max_val=max_val_back,
                     min_loc=min_loc_back,
                     max_loc=max_loc_back,
-                    correction=min_loc_news,
+                    correction=self._correction,
                 )
 
                 reload_model = ImageModel(
-                    method=self._method,
+                    method=self.method,
                     image_width=w_reload,
                     image_height=h_reload,
                     min_val=min_val_reload,
                     max_val=max_val_reload,
                     min_loc=min_loc_reload,
                     max_loc=max_loc_reload,
-                    correction=min_loc_news,
+                    correction=self._correction,
                 )
 
                 search.append(
@@ -162,9 +168,9 @@ class GBFGame:
                     )
                 )
 
-        self._game_area = max(search, key=lambda game_area: game_area.accuracy())
+        result = max(search, key=lambda game_area: game_area.accuracy())
 
-        for accuracy in self._game_area.accuracy():
+        for accuracy in result.accuracy():
             if accuracy < self._min_accuracy:
                 raise GBFAutomataError(
                     f"Accuracy Error - Threshold: <{self._min_accuracy}> - Mensured: <{accuracy}>"
@@ -173,66 +179,133 @@ class GBFGame:
         logger.info(
             "#########################################################################################"
         )
-        logger.info(f"Display Info: <{self._game_area}>")
-        logger.info(f"Game Area: <{self._game_area.area()}>")
-        logger.info(f"News Coordinates: <{self._game_area._news.plot_area()}>")
-        logger.info(f"Menu Coordinates: <{self._game_area._menu.plot_area()}>")
-        logger.info(f"Home Coordinates: <{self._game_area._home.plot_area()}>")
-        logger.info(f"Back Coordinates: <{self._game_area._back.plot_area()}>")
-        logger.info(f"Reload Coordinates: <{self._game_area._reload.plot_area()}>")
-        logger.info(
-            "#########################################################################################"
-        )
+        logger.info(f"Display Info: <{result}>")
+        logger.info(f"Game Area: <{result.area()}>")
+        logger.info(f"News Coordinates: <{result.news.plot_area()}>")
+        logger.info(f"Menu Coordinates: <{result.menu.plot_area()}>")
+        logger.info(f"Home Coordinates: <{result.home.plot_area()}>")
+        logger.info(f"Back Coordinates: <{result.back.plot_area()}>")
+        logger.info(f"Reload Coordinates: <{result.reload.plot_area()}>")
 
-    def move_home(self):
+        return result
+
+    def move_to_home_page(self):
         logger.info(
             "#########################################################################################"
         )
         logger.info(f"Mouse start position: <{pyautogui.position()}>")
-        logger.info("Home Center: x: <{}> | y: <{}>".format(*self._game_area._home.center()))
+        logger.info("Move to Home: x: <{}> | y: <{}>".format(*self.game_area.home.center()))
+        
+        pyautogui.moveTo(*self.game_area.home.center())
+        
+        pyautogui.click()
+        
+        # TODO: Implement better wait method
+        self.wait(4.0)
 
-        pyautogui.moveTo(*self._game_area.home_position())
+    def wait(self, seconds: float = 2.0):
+        time.sleep(seconds)
 
     
-    def start(self, context = None):
-        self.move_home()
+    def search_for_element(self, element: str):
+        if element:
+            image = cv.imread(element, cv.IMREAD_UNCHANGED)
+            
+            w_image, h_image = image.shape[::-1]
+
+            with mss.mss() as sct:
+                template = cv.cvtColor(
+                    src=np.asarray(sct.grab(self.get_area())),
+                    code=cv.COLOR_RGBA2GRAY
+                ) 
+
+                res_element = cv.matchTemplate(
+                    image=image, templ=template, method=self.method
+                )
+               
+                min_val_image, max_val_image, min_loc_image, max_loc_image = cv.minMaxLoc(
+                    res_element
+                )
+   
+                return ImageModel(
+                    method=self.method,
+                    image_width=w_image,
+                    image_height=h_image,
+                    min_val=min_val_image,
+                    max_val=max_val_image,
+                    min_loc=min_loc_image,
+                    max_loc=max_loc_image,
+                    correction=self._correction
+                )
+
+        raise GBFAutomataError(f'Invalid image path: <{element}>')
+
+    def start(self):
+        self.move_to_home_page()
+
+        if settings.content_type == ContentType.ARCARUM_V2:
+    
+            arcarum = None
+
+            for _ in range(0, self.max_attemps):
+
+                result = self.search_for_element(
+                    element=settings.image_arcarum
+                )
+                 
+                print(f'Accuracy: <{result.accuracy()}>')
+
+                if result.accuracy() >= 0.95:
+                    arcarum = result
+                    break 
+
+                pyautogui.scroll(-5)
+
+            if not arcarum:
+                raise GBFAutomataError('Arcarum banner not found.')
+
+                
+            logger.info("Move to Home: x: <{}> | y: <{}>".format(*arcarum.center()))
+
+            pyautogui.moveTo(*arcarum.center()) 
+
+            self.wait(4.0)
+
+# if __name__ == "__main__":
+#     game = GBFGame()
+#     game.start()
 
 
 if __name__ == "__main__":
     game = GBFGame()
-    game.start()
 
+    while True:
+        last_time = time.time()
 
-# if __name__ == "__main__":
-#     game = GBFGame()
-#
-#     while True:
-#         last_time = time.time()
-#
-#         with mss.mss() as sct:
-#
-#             img = sct.grab(game.get_area())
-#
-#             img_show = np.asarray(img)
-#
-#             menu_top_left, menu_bottom_right = game._game_area._menu.plot_area()
-#
-#             cv.rectangle(img_show, menu_top_left, menu_bottom_right, (0, 0, 255), 2)
-#
-#             news_top_left, news_bottom_right = game._game_area._news.plot_area()
-#
-#             cv.rectangle(img_show, news_top_left , news_bottom_right, (0, 0, 255), 2)
-#
-#             home_top_left, home_bottom_right = game._game_area._home.plot_area()
-#
-#             cv.rectangle(img_show, home_bottom_right, home_top_left, (0, 0, 255), 2)
-#
-#             cv.imshow("", img_show)
-#
-#             game._calibrate_game_area()
-#
-#             if cv.waitKey(25) & 0xFF == ord("q"):
-#                 cv.destroyAllWindows
-#                 break
-#
-#         logger.debug(f'fps: <{1 / (time.time() - last_time)}>')
+        with mss.mss() as sct:
+
+            img = sct.grab(game.get_area())
+
+            img_show = np.asarray(img)
+
+            menu_top_left, menu_bottom_right = game.game_area.menu.plot_area()
+
+            cv.rectangle(img_show, menu_top_left, menu_bottom_right, (0, 0, 255), 2)
+
+            news_top_left, news_bottom_right = game.game_area.news.plot_area()
+
+            cv.rectangle(img_show, news_top_left , news_bottom_right, (0, 0, 255), 2)
+
+            home_top_left, home_bottom_right = game.game_area.home.plot_area()
+
+            cv.rectangle(img_show, home_bottom_right, home_top_left, (0, 0, 255), 2)
+
+            cv.imshow("", img_show)
+
+            game._calibrate_game_area()
+
+            if cv.waitKey(25) & 0xFF == ord("q"):
+                cv.destroyAllWindows
+                break
+
+        logger.debug(f'fps: <{1 / (time.time() - last_time)}>')

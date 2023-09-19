@@ -14,27 +14,23 @@ class GameArea:
         back: ImageModel,
         reload: ImageModel,
     ) -> None:
-        self._display_identify = display_identify
-        self._aspect_ratio = Display(**aspect_ratio)
-        self._menu: ImageModel = menu
-        self._news: ImageModel = news
-        self._home: ImageModel = home
-        self._back: ImageModel = back
-        self._reload: ImageModel = reload
+        self.display_identify = display_identify
+        self.aspect_ratio = Display(**aspect_ratio)
+        self.menu: ImageModel = menu
+        self.news: ImageModel = news
+        self.home: ImageModel = home
+        self.back: ImageModel = back
+        self.reload: ImageModel = reload
 
     def __repr__(self) -> str:
         return (
-            f"Display ID {self._display_identify} "
-            f"Aspect Ratio {self._aspect_ratio} "
+            f"Display ID {self.display_identify} "
+            f"Aspect Ratio {self.aspect_ratio} "
         )
 
     def accuracy(self) -> List[float]:
         return [
-            self._menu.accuracy(),
-            self._news.accuracy(),
-            self._home.accuracy(),
-            self._back.accuracy(),
-            self._reload.accuracy(),
+            self.home.accuracy(),
         ]
 
         ### Display ###
@@ -58,34 +54,28 @@ class GameArea:
 
     def area(self) -> dict:
         return {
-            "top": self._aspect_ratio.top + self._news.min_loc[1],
-            "left": self._aspect_ratio.left + self._news.min_loc[0],
-            "width": self._aspect_ratio.width
+            "top": self.aspect_ratio.top + self.news.min_loc[1],
+            "left": self.aspect_ratio.left + self.news.min_loc[0],
+            "width": self.aspect_ratio.width
             - (
-                self._aspect_ratio.width
-                - (self._menu.min_loc[0] + self._menu.image_width)
+                self.aspect_ratio.width
+                - (self.menu.min_loc[0] + self.menu.image_width)
             )
-            - self._news.min_loc[0],
-            "height": self._aspect_ratio.height
+            - self.news.min_loc[0],
+            "height": self.aspect_ratio.height
             - (
-                self._aspect_ratio.height
-                - (self._home.min_loc[1] + self._home.image_height)
+                self.aspect_ratio.height
+                - (self.home.min_loc[1] + self.home.image_height)
             )
-            - self._news.min_loc[1],
-            "mon": self._display_identify,
+            - self.news.min_loc[1],
+            "mon": self.display_identify,
         }
 
     def full_area(self) -> dict:
         return {
-            "top": self._aspect_ratio.top,
-            "left": self._aspect_ratio.left,
-            "width": self._aspect_ratio.width,
-            "height": self._aspect_ratio.height,
-            "mon": self._display_identify,
+            "top": self.aspect_ratio.top,
+            "left": self.aspect_ratio.left,
+            "width": self.aspect_ratio.width,
+            "height": self.aspect_ratio.height,
+            "mon": self.display_identify,
         }
-
-
-    def home_position(self) -> Tuple[float, float]:
-        print(self._aspect_ratio)
-        x_home, y_home = self._home.center()
-        return (x_home + self._aspect_ratio.left, y_home)
