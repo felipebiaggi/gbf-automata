@@ -4,6 +4,7 @@ import cv2 as cv
 import numpy as np
 from mss import mss
 import mss.tools
+from typing import Tuple
 
 from pathvalidate.argparse import sanitize_filepath_arg
 
@@ -28,6 +29,7 @@ class CalibrateScreen:
         top_left_height,
         top_right_width,
         bottom_right_height,
+        banner: Tuple
     ) -> None:
         self._display = display
         self._aspect_ratio = aspect_ratio
@@ -38,6 +40,7 @@ class CalibrateScreen:
         self._top_left_height = top_left_height
         self._top_right_width = top_right_width
         self._bottom_right_height = bottom_right_height
+        self._banner: Tuple = banner
 
     def __repr__(self) -> str:
         return (
@@ -86,9 +89,13 @@ if __name__ == "__main__":
 
     template_image_home = cv.imread(args.home, cv.IMREAD_UNCHANGED)
 
+    image_banner = cv.imread('resource/main_menu/image_arcarum_gray.png', cv.IMREAD_UNCHANGED)
+
     w_menu, h_menu = template_image_menu.shape[::-1]
     w_news, h_news = template_image_news.shape[::-1]
     w_home, h_home = template_image_home.shape[::-1]
+    w_banner, h_banner = template_image_home.shape[::-1]
+
 
     with mss.mss() as sct:
         while True:
@@ -96,7 +103,7 @@ if __name__ == "__main__":
 
             search = []
 
-            for index, monitor in enumerate(sct.monitors[2:]):
+            for index, monitor in enumerate(sct.monitors[1:2]):
                 screenshot = np.array(sct.grab(monitor))
 
                 screenshot = cv.cvtColor(screenshot, cv.COLOR_RGBA2GRAY)
@@ -113,12 +120,22 @@ if __name__ == "__main__":
                     template_image_home, screenshot, cv.TM_SQDIFF_NORMED
                 )
 
+                res_banner = cv.matchTemplate(
+                    image_banner,
+                    screenshot,
+                    cv.TM_SQDIFF_NORMED
+                )
+
+
                 # For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
                 min_val_menu, _, min_loc_menu, _ = cv.minMaxLoc(res_menu)
                 min_val_news, _, min_loc_news, _ = cv.minMaxLoc(res_news)
                 min_val_home, _, min_loc_home, _ = cv.minMaxLoc(res_home)
+                min_val_banner, _, min_loc_banner, _ = cv.minMaxLoc(res_banner)
 
-                print(monitor)
+                
+                print(min_loc_banner[0])
+                print(min_loc_banner[1])
 
                 search.append(
                     CalibrateScreen(
@@ -131,6 +148,7 @@ if __name__ == "__main__":
                         top_left_height=(min_loc_news[1]),
                         top_right_width=(min_loc_menu[0] + w_menu),
                         bottom_right_height=(min_loc_home[1] + h_home),
+                        banner=min_loc_banner
                     )
                 )
 
@@ -145,13 +163,17 @@ if __name__ == "__main__":
                 cv.destroyAllWindows
                 break
 
-            print(result.game_area())
+            top_left, bottom_right = result._banner
+
+            print(result._banner)
 
             sct_img = sct.grab(result.game_area())
 
-            img_show = np.array(sct_img)
+            img_show = np.asarray(sct_img)
 
-            cv.imshow("", cv.cvtColor(img_show, cv.COLOR_RGBA2GRAY))
+            cv.rectangle(img_show, (0, 0), (10, 10), (0, 0, 255), 2)
+
+            cv.imshow("", img_show)
 
             if cv.waitKey(25) & 0xFF == ord("q"):
                 cv.destroyAllWindows

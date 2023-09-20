@@ -22,10 +22,10 @@ logger = get_logger(__name__)
 
 class GBFGame:
     def __init__(self):
-        self._min_accuracy = 0.85
+        self._min_accuracy = 0.70
         self._correction = (0, 0)
 
-        self.method = TemplateMatch.TM_SQDIFF_NORMED
+        self.method = TemplateMatch.TM_CCOEFF_NORMED
         self.max_attemps = 5
         self.game_area: GameArea = self._calibrate_game_area()
 
@@ -41,7 +41,8 @@ class GBFGame:
         image_menu = cv.imread(settings.image_menu, cv.IMREAD_UNCHANGED)
         image_news = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
         image_home = cv.imread(settings.image_home, cv.IMREAD_UNCHANGED)
-        image_back = cv.imread(settings.image_back, cv.IMREAD_UNCHANGED)
+        image_back = cv.imread(settings.image_back, cv.IMREAD_UNCHANGED) 
+        # image_reload = cv.imread('resource/main_menu/image_arcarum_gray.png', cv.IMREAD_UNCHANGED)
         image_reload = cv.imread(settings.image_reload, cv.IMREAD_UNCHANGED)
 
         w_menu, h_menu = image_menu.shape[::-1]
@@ -53,7 +54,7 @@ class GBFGame:
         search: List = []
 
         with mss.mss() as sct:
-            for index, monitor in enumerate(sct.monitors[:1]):
+            for index, monitor in enumerate(sct.monitors[2:]):
                 display_template = np.asarray(sct.grab(monitor))
 
                 display_template = cv.cvtColor(
@@ -170,10 +171,10 @@ class GBFGame:
 
         result = max(search, key=lambda game_area: game_area.accuracy())
 
-        for accuracy in result.accuracy():
+        for name, accuracy in result.accuracy():
             if accuracy < self._min_accuracy:
                 raise GBFAutomataError(
-                    f"Accuracy Error - Threshold: <{self._min_accuracy}> - Mensured: <{accuracy}>"
+                    f"Accuracy Error - Threshold: <{self._min_accuracy}> - Mensured: <{accuracy}> - Element: <{name}>"
                 )
 
         logger.info(
@@ -284,6 +285,7 @@ if __name__ == "__main__":
 
         with mss.mss() as sct:
 
+
             img = sct.grab(game.get_area())
 
             img_show = np.asarray(img)
@@ -299,6 +301,18 @@ if __name__ == "__main__":
             home_top_left, home_bottom_right = game.game_area.home.plot_area()
 
             cv.rectangle(img_show, home_bottom_right, home_top_left, (0, 0, 255), 2)
+
+            back_top_left, back_bottom_right = game.game_area.back.plot_area()
+
+            cv.rectangle(img_show, back_top_left, back_bottom_right, (0, 0, 255), 2)
+
+            reload_top_left, reload_bottom_right = game.game_area.reload.plot_area()
+
+            cv.rectangle(img_show, reload_top_left, reload_bottom_right, (0, 0, 255), 2)
+
+            # gw_top_left, gw_bottom_right = gw.plot_area()
+            #
+            # cv.rectangle(img_show, gw_top_left, gw_bottom_right, (0, 0, 255), 2)
 
             cv.imshow("", img_show)
 

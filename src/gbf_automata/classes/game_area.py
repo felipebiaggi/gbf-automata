@@ -28,13 +28,13 @@ class GameArea:
             f"Aspect Ratio {self.aspect_ratio} "
         )
 
-    def accuracy(self) -> List[float]:
+    def accuracy(self) -> List[Tuple[str, float]]:
         return [
-            self.menu.accuracy(),
-            self.news.accuracy(),
-            self.home.accuracy(),
-            self.back.accuracy(),
-            self.reload.accuracy(),
+            ('menu', self.menu.accuracy()),
+            ('news', self.news.accuracy()),
+            ('home', self.home.accuracy()),
+            ('back', self.back.accuracy()),
+            ('reload', self.reload.accuracy()),
         ]
 
         ### Display ###
@@ -83,4 +83,5 @@ class GameArea:
             "height": self.aspect_ratio.height,
             "mon": self.display_identify,
         }
+
 

@@ -2,7 +2,7 @@ import argparse
 import cv2 as cv
 from pathvalidate.argparse import sanitize_filepath_arg
 from matplotlib import pyplot as plt
-from gbf_automata.schema.image_area import ImageArea
+from gbf_automata.schema.image_area import ImageModel
 from gbf_automata.enums.template_match import TemplateMatch
 
 parse = argparse.ArgumentParser(
@@ -22,17 +22,14 @@ if __name__ == "__main__":
     image = cv.imread(args.image, cv.IMREAD_UNCHANGED)
 
     w, h = image.shape[::-1]
-
-    print(w)
-    print(h)
-
+  
     method = TemplateMatch.TM_CCORR_NORMED
 
     res = cv.matchTemplate(template_gray, image, method)
 
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
 
-    image_area = ImageArea(
+    image_area = ImageModel(
         method=method,
         image_width=w,
         image_height=h,
@@ -40,6 +37,7 @@ if __name__ == "__main__":
         max_val=max_val,
         min_loc=min_loc,
         max_loc=max_loc,
+        correction=min_loc
     )
 
     top_left, bottom_right = image_area.plot_area()

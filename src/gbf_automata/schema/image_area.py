@@ -24,7 +24,7 @@ class ImageModel(BaseModel):
         else:
             top_left = (
                 self.max_loc[0] - self.correction[0],
-                self.max_loc[1] + self.correction[1],
+                self.max_loc[1] - self.correction[1],
             )
 
         bottom_right = (top_left[0] + self.image_width, top_left[1] + self.image_height)
