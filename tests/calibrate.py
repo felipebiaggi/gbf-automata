@@ -29,7 +29,7 @@ class CalibrateScreen:
         top_left_height,
         top_right_width,
         bottom_right_height,
-        banner: Tuple
+        banner: Tuple,
     ) -> None:
         self._display = display
         self._aspect_ratio = aspect_ratio
@@ -89,13 +89,14 @@ if __name__ == "__main__":
 
     template_image_home = cv.imread(args.home, cv.IMREAD_UNCHANGED)
 
-    image_banner = cv.imread('resource/main_menu/image_arcarum_gray.png', cv.IMREAD_UNCHANGED)
+    image_banner = cv.imread(
+        "resource/main_menu/image_arcarum_gray.png", cv.IMREAD_UNCHANGED
+    )
 
     w_menu, h_menu = template_image_menu.shape[::-1]
     w_news, h_news = template_image_news.shape[::-1]
     w_home, h_home = template_image_home.shape[::-1]
     w_banner, h_banner = template_image_home.shape[::-1]
-
 
     with mss.mss() as sct:
         while True:
@@ -121,11 +122,8 @@ if __name__ == "__main__":
                 )
 
                 res_banner = cv.matchTemplate(
-                    image_banner,
-                    screenshot,
-                    cv.TM_SQDIFF_NORMED
+                    image_banner, screenshot, cv.TM_SQDIFF_NORMED
                 )
-
 
                 # For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
                 min_val_menu, _, min_loc_menu, _ = cv.minMaxLoc(res_menu)
@@ -133,7 +131,6 @@ if __name__ == "__main__":
                 min_val_home, _, min_loc_home, _ = cv.minMaxLoc(res_home)
                 min_val_banner, _, min_loc_banner, _ = cv.minMaxLoc(res_banner)
 
-                
                 print(min_loc_banner[0])
                 print(min_loc_banner[1])
 
@@ -148,7 +145,7 @@ if __name__ == "__main__":
                         top_left_height=(min_loc_news[1]),
                         top_right_width=(min_loc_menu[0] + w_menu),
                         bottom_right_height=(min_loc_home[1] + h_home),
-                        banner=min_loc_banner
+                        banner=min_loc_banner,
                     )
                 )
 

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     image = cv.imread(args.image, cv.IMREAD_UNCHANGED)
 
     w, h = image.shape[::-1]
-  
+
     method = TemplateMatch.TM_CCORR_NORMED
 
     res = cv.matchTemplate(template_gray, image, method)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         max_val=max_val,
         min_loc=min_loc,
         max_loc=max_loc,
-        correction=min_loc
+        correction=min_loc,
     )
 
     top_left, bottom_right = image_area.plot_area()

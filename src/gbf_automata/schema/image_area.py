@@ -13,7 +13,7 @@ class ImageModel(BaseModel):
     min_loc: Point
     max_loc: Point
 
-    correction: Point
+    correction: Point = (0, 0)
 
     def plot_area(self) -> Tuple[Tuple[int, int], Tuple[int, int]]:
         if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
@@ -32,10 +32,33 @@ class ImageModel(BaseModel):
         return (top_left, bottom_right)
 
     def accuracy(self) -> float:
-        return 1 - self.min_val
+        if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
+            return 1 - self.min_val
 
-    def center(self) -> Tuple[float, float]:
+        return self.max_val
+
+    def center(self, correction: bool = False) -> Tuple[float, float]:
+        min_loc = self.min_loc
+        max_loc = self.max_loc
+
+        if correction:
+            min_loc = (
+                min_loc[0] + self.correction[0],
+                min_loc[1] + self.correction[1]
+            )
+
+            max_loc = (
+                max_loc[0] + self.correction[0],
+                max_loc[1] + self.correction[1]
+            )
+
+        if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
+            return (
+                min_loc[0] + (self.image_width / 2),
+                min_loc[1] + (self.image_height / 2),
+            )
+
         return (
-            self.min_loc[0] + (self.image_width / 2),
-            self.min_loc[1] + (self.image_height / 2),
+            max_loc[0] + (self.image_width / 2),
+            max_loc[1] + (self.image_height / 2),
         )

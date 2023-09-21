@@ -1,3 +1,4 @@
+from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.schema.display import Display
 from gbf_automata.schema.image_area import ImageModel
 from typing import List, Tuple
@@ -24,17 +25,16 @@ class GameArea:
 
     def __repr__(self) -> str:
         return (
-            f"Display ID {self.display_identify} "
-            f"Aspect Ratio {self.aspect_ratio} "
+            f"Display ID {self.display_identify} " f"Aspect Ratio {self.aspect_ratio} "
         )
 
     def accuracy(self) -> List[Tuple[str, float]]:
         return [
-            ('menu', self.menu.accuracy()),
-            ('news', self.news.accuracy()),
-            ('home', self.home.accuracy()),
-            ('back', self.back.accuracy()),
-            ('reload', self.reload.accuracy()),
+            ("menu", self.menu.accuracy()),
+            ("news", self.news.accuracy()),
+            ("home", self.home.accuracy()),
+            ("back", self.back.accuracy()),
+            ("reload", self.reload.accuracy()),
         ]
 
         ### Display ###
@@ -42,7 +42,7 @@ class GameArea:
     ##########################################################################
     #
     #                    (Game Area)
-    #  (top, left) -> +--------------+
+    #  (top,     ) -> +--------------+
     #                 |              |
     #                 |              |
     #                 |              |
@@ -57,23 +57,29 @@ class GameArea:
     #
 
     def area(self) -> dict:
+        news_loc = self.news.max_loc
+        menu_loc = self.menu.max_loc
+        home_loc = self.home.max_loc
+
+        if self.news.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
+            news_loc = self.news.min_loc
+            menu_loc = self.menu.min_loc 
+            home_loc = self.home.min_loc
+
         return {
-            "top": self.aspect_ratio.top + self.news.min_loc[1],
-            "left": self.aspect_ratio.left + self.news.min_loc[0],
-            "width": self.aspect_ratio.width
-            - (
-                self.aspect_ratio.width
-                - (self.menu.min_loc[0] + self.menu.image_width)
-            )
-            - self.news.min_loc[0],
-            "height": self.aspect_ratio.height
-            - (
-                self.aspect_ratio.height
-                - (self.home.min_loc[1] + self.home.image_height)
-            )
-            - self.news.min_loc[1],
-            "mon": self.display_identify,
-        }
+                "top": self.aspect_ratio.top + news_loc[1],
+                "left": self.aspect_ratio.left + news_loc[0],
+                "width": self.aspect_ratio.width
+                - (self.aspect_ratio.width - (menu_loc[0] + self.menu.image_width))
+                - news_loc[0],
+                "height": self.aspect_ratio.height
+                - (
+                    self.aspect_ratio.height
+                    - (home_loc[1] + self.home.image_height)
+                )
+                - news_loc[1],
+                "mon": self.display_identify,
+            }
 
     def full_area(self) -> dict:
         return {
@@ -83,5 +89,3 @@ class GameArea:
             "height": self.aspect_ratio.height,
             "mon": self.display_identify,
         }
-
-

@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 
 class GBFGame:
     def __init__(self):
-        self._min_accuracy = 0.70
+        self._min_accuracy = 0.90
         self._correction = (0, 0)
 
         self.method = TemplateMatch.TM_CCOEFF_NORMED
@@ -41,7 +41,7 @@ class GBFGame:
         image_menu = cv.imread(settings.image_menu, cv.IMREAD_UNCHANGED)
         image_news = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
         image_home = cv.imread(settings.image_home, cv.IMREAD_UNCHANGED)
-        image_back = cv.imread(settings.image_back, cv.IMREAD_UNCHANGED) 
+        image_back = cv.imread(settings.image_back, cv.IMREAD_UNCHANGED)
         # image_reload = cv.imread('resource/main_menu/image_arcarum_gray.png', cv.IMREAD_UNCHANGED)
         image_reload = cv.imread(settings.image_reload, cv.IMREAD_UNCHANGED)
 
@@ -54,7 +54,7 @@ class GBFGame:
         search: List = []
 
         with mss.mss() as sct:
-            for index, monitor in enumerate(sct.monitors[2:]):
+            for index, monitor in enumerate(sct.monitors[:1]):
                 display_template = np.asarray(sct.grab(monitor))
 
                 display_template = cv.cvtColor(
@@ -99,8 +99,11 @@ class GBFGame:
                     min_loc_reload,
                     max_loc_reload,
                 ) = cv.minMaxLoc(res_reload)
-    
-                self._correction = min_loc_news  
+
+                if self.method in [TemplateMatch.TM_SQDIFF_NORMED, TemplateMatch.TM_SQDIFF]:
+                    self._correction = min_loc_news
+                else:
+                    self._correction = max_loc_news
 
                 menu_model = ImageModel(
                     method=self.method,
@@ -195,39 +198,42 @@ class GBFGame:
             "#########################################################################################"
         )
         logger.info(f"Mouse start position: <{pyautogui.position()}>")
-        logger.info("Move to Home: x: <{}> | y: <{}>".format(*self.game_area.home.center()))
-        
+        logger.info(
+            "Move to Home: x: <{}> | y: <{}>".format(*self.game_area.home.center())
+        )
+
         pyautogui.moveTo(*self.game_area.home.center())
-        
+
         pyautogui.click()
-        
+
         # TODO: Implement better wait method
         self.wait(4.0)
 
     def wait(self, seconds: float = 2.0):
         time.sleep(seconds)
 
-    
     def search_for_element(self, element: str):
         if element:
             image = cv.imread(element, cv.IMREAD_UNCHANGED)
-            
+
             w_image, h_image = image.shape[::-1]
 
             with mss.mss() as sct:
                 template = cv.cvtColor(
-                    src=np.asarray(sct.grab(self.get_area())),
-                    code=cv.COLOR_RGBA2GRAY
-                ) 
+                    src=np.asarray(sct.grab(self.get_area())), code=cv.COLOR_RGBA2GRAY
+                )
 
                 res_element = cv.matchTemplate(
                     image=image, templ=template, method=self.method
                 )
-               
-                min_val_image, max_val_image, min_loc_image, max_loc_image = cv.minMaxLoc(
-                    res_element
-                )
-   
+
+                (
+                    min_val_image,
+                    max_val_image,
+                    min_loc_image,
+                    max_loc_image,
+                ) = cv.minMaxLoc(res_element)
+
                 return ImageModel(
                     method=self.method,
                     image_width=w_image,
@@ -236,90 +242,157 @@ class GBFGame:
                     max_val=max_val_image,
                     min_loc=min_loc_image,
                     max_loc=max_loc_image,
-                    correction=self._correction
+                    correction=self._correction,
                 )
 
-        raise GBFAutomataError(f'Invalid image path: <{element}>')
+        raise GBFAutomataError(f"Invalid image path: <{element}>")
 
     def start(self):
         self.move_to_home_page()
 
+        if settings.content_type == ContentType.GW: 
+            gw = None
+
+            for _ in range(0, self.max_attemps):
+                result = self.search_for_element(element=settings.image_gw)
+                
+                print(f'accuracy: <{result.accuracy()}>')
+
+                if result.accuracy() >= 0.95:
+                    gw = result
+                    break
+                
+                pyautogui.scroll(-5)
+
+            if not gw:
+                raise GBFAutomataError("Arcarum banner not found.")
+
+            logger.info("Movo to GW: x: <{}> | y: <{}>".format(*gw.center(correction=True)))
+
+            pyautogui.moveTo(*gw.center(correction=True))
+
+            pyautogui.click()
+
+            self.wait(4.0)
+
         if settings.content_type == ContentType.ARCARUM_V2:
-    
             arcarum = None
 
             for _ in range(0, self.max_attemps):
-
-                result = self.search_for_element(
-                    element=settings.image_arcarum
-                )
-                 
-                print(f'Accuracy: <{result.accuracy()}>')
+                result = self.search_for_element(element=settings.image_arcarum)
 
                 if result.accuracy() >= 0.95:
                     arcarum = result
-                    break 
+                    break
 
                 pyautogui.scroll(-5)
 
             if not arcarum:
-                raise GBFAutomataError('Arcarum banner not found.')
+                raise GBFAutomataError("Arcarum banner not found.")
 
-                
-            logger.info("Move to Home: x: <{}> | y: <{}>".format(*arcarum.center()))
+            pyautogui.moveTo(*arcarum.center(correction=True))
 
-            pyautogui.moveTo(*arcarum.center()) 
+            pyautogui.click()
 
             self.wait(4.0)
 
-# if __name__ == "__main__":
-#     game = GBFGame()
-#     game.start()
+            # CHECK ARCARUM 
+
+            type_arcarum = self.search_for_element(
+                element=settings.image_button_classic 
+            )
+
+            if type_arcarum.accuracy() < 0.95:
+                
+                arcarum_sandbox = self.search_for_element(
+                    element=settings.image_button_sandbox
+                )
+
+                if arcarum_sandbox.accuracy() < 0.95:
+                    raise GBFAutomataError('Invalid page')
+
+                pyautogui.moveTo(*arcarum_sandbox.center(correction=True))
+
+                pyautogui.click()
+
+            print("PASSOUUUUUUU")
+             
 
 
 if __name__ == "__main__":
     game = GBFGame()
-
-    while True:
-        last_time = time.time()
-
-        with mss.mss() as sct:
+    game.start()
 
 
-            img = sct.grab(game.get_area())
-
-            img_show = np.asarray(img)
-
-            menu_top_left, menu_bottom_right = game.game_area.menu.plot_area()
-
-            cv.rectangle(img_show, menu_top_left, menu_bottom_right, (0, 0, 255), 2)
-
-            news_top_left, news_bottom_right = game.game_area.news.plot_area()
-
-            cv.rectangle(img_show, news_top_left , news_bottom_right, (0, 0, 255), 2)
-
-            home_top_left, home_bottom_right = game.game_area.home.plot_area()
-
-            cv.rectangle(img_show, home_bottom_right, home_top_left, (0, 0, 255), 2)
-
-            back_top_left, back_bottom_right = game.game_area.back.plot_area()
-
-            cv.rectangle(img_show, back_top_left, back_bottom_right, (0, 0, 255), 2)
-
-            reload_top_left, reload_bottom_right = game.game_area.reload.plot_area()
-
-            cv.rectangle(img_show, reload_top_left, reload_bottom_right, (0, 0, 255), 2)
-
-            # gw_top_left, gw_bottom_right = gw.plot_area()
-            #
-            # cv.rectangle(img_show, gw_top_left, gw_bottom_right, (0, 0, 255), 2)
-
-            cv.imshow("", img_show)
-
-            game._calibrate_game_area()
-
-            if cv.waitKey(25) & 0xFF == ord("q"):
-                cv.destroyAllWindows
-                break
-
-        logger.debug(f'fps: <{1 / (time.time() - last_time)}>')
+# if __name__ == "__main__":
+#     game = GBFGame()
+#
+#     # gw = game.search_for_element('resource/main_menu/image_gw_gray.png')
+#
+#     gw = cv.imread("resource/main_menu/image_gw_gray.png", cv.IMREAD_UNCHANGED)
+#
+#     w_gw, h_gw = gw.shape[::-1]
+#
+#     while True:
+#         last_time = time.time()
+#
+#         with mss.mss() as sct:
+#             img = sct.grab(
+#                 game.get_area()
+#             )
+#
+#             # img = sct.grab(
+#             #     {
+#             #         "left": 3840,
+#             #         "top": 1080,
+#             #         "width": 700,
+#             #         "height": 1000,
+#             #     }
+#             # )
+#
+#             img_show = np.asarray(img)
+#
+#             img_show_gray = cv.cvtColor(src=img_show, code=cv.COLOR_RGBA2GRAY)
+#
+#             gw_match = cv.matchTemplate(
+#                 image=gw, templ=img_show_gray, method=game.method
+#             )
+#
+#             min_val_gw, max_val_gw, min_loc_gw, max_loc_gw = cv.minMaxLoc(gw_match)
+#
+#             top_left = max_loc_gw
+#
+#             bottom_right = (top_left[0] + w_gw, top_left[1] + h_gw)
+#
+#             menu_top_left, menu_bottom_right = game.game_area.menu.plot_area()
+#
+#             cv.rectangle(img_show, menu_top_left, menu_bottom_right, (0, 0, 255), 2)
+#
+#             news_top_left, news_bottom_right = game.game_area.news.plot_area()
+#
+#             cv.rectangle(img_show, news_top_left, news_bottom_right, (0, 0, 255), 2)
+#             home_top_left, home_bottom_right = game.game_area.home.plot_area()
+#
+#             cv.rectangle(img_show, home_bottom_right, home_top_left, (0, 0, 255), 2)
+#
+#             back_top_left, back_bottom_right = game.game_area.back.plot_area()
+#
+#             cv.rectangle(img_show, back_top_left, back_bottom_right, (0, 0, 255), 2)
+#
+#             reload_top_left, reload_bottom_right = game.game_area.reload.plot_area()
+#
+#             cv.rectangle(img_show, reload_top_left, reload_bottom_right, (0, 0, 255), 2)
+#
+#             # gw_top_left, gw_bottom_right = gw.plot_area()
+#             #
+#             cv.rectangle(img_show, top_left, bottom_right, (0, 0, 255), 2)
+#
+#             cv.imshow("", img_show)
+#
+#             game._calibrate_game_area()
+#
+#             if cv.waitKey(25) & 0xFF == ord("q"):
+#                 cv.destroyAllWindows
+#                 break
+#
+#         logger.debug(f'fps: <{1 / (time.time() - last_time)}>')
