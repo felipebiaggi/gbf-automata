@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     image_menu: str = Field(default=None)
     image_news: str = Field(default=None)
     image_home: str = Field(default=None)
+    image_home_default: str = Field(default=None)
     image_back: str = Field(default=None)
     image_reload: str = Field(default=None)
     image_arcarum: str = Field(default=None)
@@ -35,7 +36,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-
-if __name__ == "__main__":
-    print(settings)

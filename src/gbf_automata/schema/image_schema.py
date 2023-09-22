@@ -42,15 +42,9 @@ class ImageModel(BaseModel):
         max_loc = self.max_loc
 
         if correction:
-            min_loc = (
-                min_loc[0] + self.correction[0],
-                min_loc[1] + self.correction[1]
-            )
+            min_loc = (min_loc[0] + self.correction[0], min_loc[1] + self.correction[1])
 
-            max_loc = (
-                max_loc[0] + self.correction[0],
-                max_loc[1] + self.correction[1]
-            )
+            max_loc = (max_loc[0] + self.correction[0], max_loc[1] + self.correction[1])
 
         if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
             return (

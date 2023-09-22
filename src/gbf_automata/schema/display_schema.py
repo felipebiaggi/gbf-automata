@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class Display(BaseModel):
+class DisplayModel(BaseModel):
     left: int
     top: int
     width: int

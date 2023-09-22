@@ -8,9 +8,9 @@ import time
 from typing import List, Union
 import pyautogui
 
-from gbf_automata.classes.game_area import GameArea
+from gbf_automata.classes.home import Home
 from gbf_automata.enums.template_match import TemplateMatch
-from gbf_automata.schema.image_area import ImageModel
+from gbf_automata.schema.image_schema import ImageModel
 from gbf_automata.util.settings import settings
 from gbf_automata.util.logger import get_logger
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
@@ -27,11 +27,11 @@ class GBFGame:
 
         self.method = TemplateMatch.TM_CCOEFF_NORMED
         self.max_attemps = 5
-        self.game_area: GameArea = self._calibrate_game_area()
+        self.game_area: Home = self._calibrate_game_area()
 
     def get_area(self) -> dict:
         if self.game_area:
-            return self.game_area.area()
+            return self.game_area.game_area()
 
         return {}
 
@@ -42,7 +42,6 @@ class GBFGame:
         image_news = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
         image_home = cv.imread(settings.image_home, cv.IMREAD_UNCHANGED)
         image_back = cv.imread(settings.image_back, cv.IMREAD_UNCHANGED)
-        # image_reload = cv.imread('resource/main_menu/image_arcarum_gray.png', cv.IMREAD_UNCHANGED)
         image_reload = cv.imread(settings.image_reload, cv.IMREAD_UNCHANGED)
 
         w_menu, h_menu = image_menu.shape[::-1]
@@ -100,7 +99,10 @@ class GBFGame:
                     max_loc_reload,
                 ) = cv.minMaxLoc(res_reload)
 
-                if self.method in [TemplateMatch.TM_SQDIFF_NORMED, TemplateMatch.TM_SQDIFF]:
+                if self.method in [
+                    TemplateMatch.TM_SQDIFF_NORMED,
+                    TemplateMatch.TM_SQDIFF,
+                ]:
                     self._correction = min_loc_news
                 else:
                     self._correction = max_loc_news
@@ -161,7 +163,7 @@ class GBFGame:
                 )
 
                 search.append(
-                    GameArea(
+                    Home(
                         display_identify=(index + 1),
                         aspect_ratio=monitor,
                         menu=menu_model,
@@ -184,7 +186,7 @@ class GBFGame:
             "#########################################################################################"
         )
         logger.info(f"Display Info: <{result}>")
-        logger.info(f"Game Area: <{result.area()}>")
+        logger.info(f"Game Area: <{result.game_area()}>")
         logger.info(f"News Coordinates: <{result.news.plot_area()}>")
         logger.info(f"Menu Coordinates: <{result.menu.plot_area()}>")
         logger.info(f"Home Coordinates: <{result.home.plot_area()}>")
@@ -250,24 +252,26 @@ class GBFGame:
     def start(self):
         self.move_to_home_page()
 
-        if settings.content_type == ContentType.GW: 
+        if settings.content_type == ContentType.GW:
             gw = None
 
             for _ in range(0, self.max_attemps):
                 result = self.search_for_element(element=settings.image_gw)
-                
-                print(f'accuracy: <{result.accuracy()}>')
+
+                print(f"accuracy: <{result.accuracy()}>")
 
                 if result.accuracy() >= 0.95:
                     gw = result
                     break
-                
+
                 pyautogui.scroll(-5)
 
             if not gw:
                 raise GBFAutomataError("Arcarum banner not found.")
 
-            logger.info("Movo to GW: x: <{}> | y: <{}>".format(*gw.center(correction=True)))
+            logger.info(
+                "Movo to GW: x: <{}> | y: <{}>".format(*gw.center(correction=True))
+            )
 
             pyautogui.moveTo(*gw.center(correction=True))
 
@@ -287,6 +291,8 @@ class GBFGame:
 
                 pyautogui.scroll(-5)
 
+                self.wait(0.5)
+
             if not arcarum:
                 raise GBFAutomataError("Arcarum banner not found.")
 
@@ -296,27 +302,25 @@ class GBFGame:
 
             self.wait(4.0)
 
-            # CHECK ARCARUM 
+            # CHECK ARCARUM
 
             type_arcarum = self.search_for_element(
-                element=settings.image_button_classic 
+                element=settings.image_button_classic
             )
 
             if type_arcarum.accuracy() < 0.95:
-                
                 arcarum_sandbox = self.search_for_element(
                     element=settings.image_button_sandbox
                 )
 
                 if arcarum_sandbox.accuracy() < 0.95:
-                    raise GBFAutomataError('Invalid page')
+                    raise GBFAutomataError("Invalid page")
 
                 pyautogui.moveTo(*arcarum_sandbox.center(correction=True))
 
                 pyautogui.click()
 
             print("PASSOUUUUUUU")
-             
 
 
 if __name__ == "__main__":
