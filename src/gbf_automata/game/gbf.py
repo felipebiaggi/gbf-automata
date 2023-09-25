@@ -1,14 +1,12 @@
-from pprint import pprint
-import cv2 as cv
-from cv2.gapi.wip.draw import Image
-from matplotlib import logging
-import numpy as np
+from cv2.typing import Point
 import mss
 import time
-from typing import List, Union
 import pyautogui
+import cv2 as cv
+import numpy as np
+from typing import List
 
-from gbf_automata.classes.home import Home
+from gbf_automata.classes.game_area import GameArea
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.schema.image_schema import ImageModel
 from gbf_automata.util.settings import settings
@@ -22,18 +20,130 @@ logger = get_logger(__name__)
 
 class GBFGame:
     def __init__(self):
-        self._min_accuracy = 0.90
-        self._correction = (0, 0)
+        self.accuracy_threshold: float = 0.95
+        self.correction: Point = (0, 0)
 
-        self.method = TemplateMatch.TM_CCOEFF_NORMED
-        self.max_attemps = 5
-        self.game_area: Home = self._calibrate_game_area()
+        self.method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED
+        self.max_attemps: int = 5
+        self.state_calibration: bool = False
+        self.content: ContentType = settings.content_type
 
-    def get_area(self) -> dict:
-        if self.game_area:
-            return self.game_area.game_area()
+    def search_for_element(
+        self,
+        element: str,
+        method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED,
+        accuracy_threshold: float = 0.95,
+        correction: Point = (0, 0),
+    ) -> ImageModel:
+        if element:
+            image = cv.imread(element, cv.IMREAD_UNCHANGED)
+            w_image, h_image = image.shape[::-1]
 
-        return {}
+            with mss.mss() as sct:
+                for monitor in sct.monitors[1:]:
+                    template = cv.cvtColor(
+                        src=np.asarray(
+                            sct.grab(monitor)
+                        ), 
+                        code=cv.COLOR_RGBA2GRAY
+                    )
+
+                    res_element = cv.matchTemplate(
+                        image=image, templ=template, method=method
+                    )
+
+                    (
+                        min_val_image,
+                        max_val_image,
+                        min_loc_image,
+                        max_loc_image,
+                    ) = cv.minMaxLoc(res_element)
+
+                    image_model = ImageModel(
+                        method=method,
+                        image_width=w_image,
+                        image_height=h_image,
+                        min_val=min_val_image,
+                        max_val=max_val_image,
+                        min_loc=min_loc_image,
+                        max_loc=max_loc_image,
+                        correction=correction,
+                    )
+
+                    if image_model.accuracy() >= accuracy_threshold:
+                        return image_model
+
+                    raise GBFAutomataError(
+                        f"Accuracy below the required threshold: <{image_model.accuracy()}>"
+                    )
+
+        raise GBFAutomataError(f"Invalid image path: <{element}>")
+
+    def move_to_main_page(self):
+        home_image_model = self.search_for_element(
+            element=settings.image_home_bottom,
+        )
+
+        pyautogui.moveTo(*home_image_model.center())
+        
+        pyautogui.click()
+
+
+    def calibrate(self, home: bool = False):
+
+        if home:
+            image_top = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
+        else:
+            image_top = cv.imread(settings.image_home_top, cv.IMREAD_UNCHANGED)
+            
+        image_bottom = cv.imread(settings.image_home_bottom, cv.IMREAD_UNCHANGED) 
+
+        w_top, h_top = image_top.shape[::-1]
+        w_bottom, h_bottom = image_bottom.shape[::-1]
+        
+
+        search: List = []
+
+        with mss.mss() as sct:
+            for monitor in sct.monitors:
+
+                template = cv.cvtColor(
+                    src=np.asarray(
+                        sct.grab(monitor)
+                    ),
+                    code=cv.COLOR_RGBA2GRAY
+                )
+
+                res_image_top = cv.matchTemplate(
+                    image=image_top,
+                    templ=template,
+                    method=self.method
+                )
+
+                res_image_bottom = cv.matchTemplate(
+                    image=image_bottom,
+                    templ=template,
+                    method=self.method
+                )
+
+
+                min_val_top, max_val_top, min_loc_top, max_loc_top = cv.minMaxLoc(
+                    res_image_top
+                )
+
+                min_val_bottom, max_val_bottom, min_loc_bottom, max_loc_bottom = cv.minMaxLoc(
+                    res_image_bottom
+                )
+    
+                if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
+                    self.correction=
+
+                self.correction = 
+
+                top = ImageModel(
+                   method=self.method, 
+                )
+
 
     # Abstraction leak???
     # TODO: refactory
@@ -193,6 +303,8 @@ class GBFGame:
         logger.info(f"Back Coordinates: <{result.back.plot_area()}>")
         logger.info(f"Reload Coordinates: <{result.reload.plot_area()}>")
 
+        self.state_calibration = True
+
         return result
 
     def move_to_home_page(self):
@@ -213,41 +325,6 @@ class GBFGame:
 
     def wait(self, seconds: float = 2.0):
         time.sleep(seconds)
-
-    def search_for_element(self, element: str):
-        if element:
-            image = cv.imread(element, cv.IMREAD_UNCHANGED)
-
-            w_image, h_image = image.shape[::-1]
-
-            with mss.mss() as sct:
-                template = cv.cvtColor(
-                    src=np.asarray(sct.grab(self.get_area())), code=cv.COLOR_RGBA2GRAY
-                )
-
-                res_element = cv.matchTemplate(
-                    image=image, templ=template, method=self.method
-                )
-
-                (
-                    min_val_image,
-                    max_val_image,
-                    min_loc_image,
-                    max_loc_image,
-                ) = cv.minMaxLoc(res_element)
-
-                return ImageModel(
-                    method=self.method,
-                    image_width=w_image,
-                    image_height=h_image,
-                    min_val=min_val_image,
-                    max_val=max_val_image,
-                    min_loc=min_loc_image,
-                    max_loc=max_loc_image,
-                    correction=self._correction,
-                )
-
-        raise GBFAutomataError(f"Invalid image path: <{element}>")
 
     def start(self):
         self.move_to_home_page()
@@ -302,8 +379,6 @@ class GBFGame:
 
             self.wait(4.0)
 
-            # CHECK ARCARUM
-
             type_arcarum = self.search_for_element(
                 element=settings.image_button_classic
             )
@@ -325,78 +400,4 @@ class GBFGame:
 
 if __name__ == "__main__":
     game = GBFGame()
-    game.start()
-
-
-# if __name__ == "__main__":
-#     game = GBFGame()
-#
-#     # gw = game.search_for_element('resource/main_menu/image_gw_gray.png')
-#
-#     gw = cv.imread("resource/main_menu/image_gw_gray.png", cv.IMREAD_UNCHANGED)
-#
-#     w_gw, h_gw = gw.shape[::-1]
-#
-#     while True:
-#         last_time = time.time()
-#
-#         with mss.mss() as sct:
-#             img = sct.grab(
-#                 game.get_area()
-#             )
-#
-#             # img = sct.grab(
-#             #     {
-#             #         "left": 3840,
-#             #         "top": 1080,
-#             #         "width": 700,
-#             #         "height": 1000,
-#             #     }
-#             # )
-#
-#             img_show = np.asarray(img)
-#
-#             img_show_gray = cv.cvtColor(src=img_show, code=cv.COLOR_RGBA2GRAY)
-#
-#             gw_match = cv.matchTemplate(
-#                 image=gw, templ=img_show_gray, method=game.method
-#             )
-#
-#             min_val_gw, max_val_gw, min_loc_gw, max_loc_gw = cv.minMaxLoc(gw_match)
-#
-#             top_left = max_loc_gw
-#
-#             bottom_right = (top_left[0] + w_gw, top_left[1] + h_gw)
-#
-#             menu_top_left, menu_bottom_right = game.game_area.menu.plot_area()
-#
-#             cv.rectangle(img_show, menu_top_left, menu_bottom_right, (0, 0, 255), 2)
-#
-#             news_top_left, news_bottom_right = game.game_area.news.plot_area()
-#
-#             cv.rectangle(img_show, news_top_left, news_bottom_right, (0, 0, 255), 2)
-#             home_top_left, home_bottom_right = game.game_area.home.plot_area()
-#
-#             cv.rectangle(img_show, home_bottom_right, home_top_left, (0, 0, 255), 2)
-#
-#             back_top_left, back_bottom_right = game.game_area.back.plot_area()
-#
-#             cv.rectangle(img_show, back_top_left, back_bottom_right, (0, 0, 255), 2)
-#
-#             reload_top_left, reload_bottom_right = game.game_area.reload.plot_area()
-#
-#             cv.rectangle(img_show, reload_top_left, reload_bottom_right, (0, 0, 255), 2)
-#
-#             # gw_top_left, gw_bottom_right = gw.plot_area()
-#             #
-#             cv.rectangle(img_show, top_left, bottom_right, (0, 0, 255), 2)
-#
-#             cv.imshow("", img_show)
-#
-#             game._calibrate_game_area()
-#
-#             if cv.waitKey(25) & 0xFF == ord("q"):
-#                 cv.destroyAllWindows
-#                 break
-#
-#         logger.debug(f'fps: <{1 / (time.time() - last_time)}>')
+    game.move_to_main_page()

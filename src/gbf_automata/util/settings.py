@@ -11,8 +11,8 @@ class Settings(BaseSettings):
 
     image_menu: str = Field(default=None)
     image_news: str = Field(default=None)
-    image_home: str = Field(default=None)
-    image_home_default: str = Field(default=None)
+    image_home_top: str = Field(default=None)
+    image_home_bottom: str = Field(default=None)
     image_back: str = Field(default=None)
     image_reload: str = Field(default=None)
     image_arcarum: str = Field(default=None)
@@ -20,11 +20,23 @@ class Settings(BaseSettings):
 
     image_button_classic: str = Field(default=None)
     image_button_sandbox: str = Field(default=None)
+    image_zone_mundus: str = Field(default=None)
 
-    content_type: Union[str, ContentType] = Field(default=None)
+    image_zone_eletio: str = Field(default=None)
+    image_zone_faym: str = Field(default=None)
+    image_zone_goliath: str = Field(default=None)
+    image_zone_harbinger: str = Field(default=None)
 
-    @field_validator("content_type")
-    def str_to_enum(cls, value: str) -> ContentType:
+    image_zone_invidia: str = Field(default=None)
+    image_zone_joculator: str = Field(default=None)
+    image_zone_kalendae: str = Field(default=None)
+    image_zone_liber: str = Field(default=None)
+
+    content_type: ContentType = Field(default=None)
+
+    @field_validator("content_type", mode="before")
+    @classmethod
+    def str_to_enum(cls, value) -> ContentType:
         for member in ContentType:
             if member.name.lower() == value.lower():
                 return member

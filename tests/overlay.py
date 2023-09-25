@@ -97,8 +97,6 @@ def default_area():
                 else:
                     correction = max_loc_home_default
 
-                correction = (0, 0)
-
                 menu_model = ImageModel(
                     method=method,
                     image_width=w_menu,
@@ -117,7 +115,7 @@ def default_area():
                     min_val=min_val_home_default,
                     max_val=max_val_home_default,
                     min_loc=min_loc_home_default,
-                    max_loc=max_loc_home,
+                    max_loc=max_loc_home_default,
                     correction=correction,
                 )
 
@@ -131,6 +129,10 @@ def default_area():
                     max_loc=max_loc_home,
                     correction=correction,
                 )
+
+                logger.debug(f"Model Home Top <{home_default_model}>")
+                logger.debug(f"Model Menu Default <{menu_model}>")
+                logger.debug(f"Model Home Bottom <{home_model}>")
 
                 search.append(
                     Default(
@@ -170,13 +172,21 @@ def render(default: Default, image_model_list: List[ImageModel]):
 
 
 if __name__ == "__main__":
-    image_list = [settings.image_gw]
+    image_list = [
+        settings.image_zone_mundus,
+        settings.image_zone_eletio,
+        settings.image_zone_faym,
+        settings.image_zone_goliath,
+        settings.image_zone_harbinger,
+        settings.image_zone_invidia,
+        settings.image_zone_joculator,
+        settings.image_zone_kalendae,
+        settings.image_zone_liber,
+    ]
 
     image_model_list = []
 
     default_area: Default = default_area()
-
-    logger.debug(f"element: <{default_area}>")
 
     for element, accuracy in default_area.accuracy():
         if accuracy < 0.95:
@@ -184,9 +194,11 @@ if __name__ == "__main__":
                 f"Low in element: <{element}> | accuracy <{accuracy}>"
             )
 
-    logger.info(f"Game Area: <{default_area.full_area()}>")
+    logger.info(f"Game Area: <{default_area.game_area()}>")
 
     for image in image_list:
-        image_model_list.append(create_image_model(image_path=image, default=default_area))
+        image_model_list.append(
+            create_image_model(image_path=image, default=default_area)
+        )
 
     render(default=default_area, image_model_list=image_model_list)

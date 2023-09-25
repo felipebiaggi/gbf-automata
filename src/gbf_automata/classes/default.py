@@ -48,14 +48,14 @@ class Default:
                 self.aspect_ratio.height
                 - (bottom_right_home_loc[1] + self.bottom_right_home.image_height)
             )
-            - bottom_right_home_loc[1],
+            - top_left_home_loc[1],
             "mon": 1,
         }
 
     def full_area(self) -> dict:
         return {
-        "top": self.aspect_ratio.top,
-        "left": self.aspect_ratio.left,
-        "width": self.aspect_ratio.width,
-        "height": self.aspect_ratio.height
-    }
+            "top": self.aspect_ratio.top,
+            "left": self.aspect_ratio.left,
+            "width": self.aspect_ratio.width,
+            "height": self.aspect_ratio.height,
+        }
