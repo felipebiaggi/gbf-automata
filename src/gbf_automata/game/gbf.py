@@ -22,13 +22,14 @@ class GBFGame:
     def __init__(self):
         self.accuracy_threshold: float = 0.90
         self.correction: Point = (0, 0)
-
         self.method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED
-        self.max_attemps: int = 5
-        self.state_calibration: bool = False
         self.content: ContentType = settings.content_type
+        self.max_attemps: int = 5
 
         self.area = None
+
+        # States
+        self.state_calibration: bool = False
 
     def search_for_element(
         self,
@@ -72,12 +73,7 @@ class GBFGame:
                         correction=correction,
                     )
 
-                    if image_model.accuracy() >= accuracy_threshold:
-                        return image_model
-
-                    raise GBFAutomataError(
-                        f"Accuracy below the required threshold: <{image_model.accuracy()}>"
-                    )
+                    return image_model
 
         raise GBFAutomataError(f"Invalid image path: <{element}>")
 
@@ -185,10 +181,12 @@ class GBFGame:
         time.sleep(seconds)
 
     def start(self):
+
         self.move_to_main_page()
         self.wait(seconds=4.0)
-        self.calibrate()
-        
+        self.calibrate(
+            home=True
+        )
 
         if settings.content_type == ContentType.ARCARUM_V2:
             arcarum = None
@@ -228,6 +226,10 @@ class GBFGame:
                 pyautogui.moveTo(*arcarum_sandbox.center(correction=True))
 
                 pyautogui.click()
+
+            ### Select Stage
+
+             
 
 
 if __name__ == "__main__":

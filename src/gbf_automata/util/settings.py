@@ -1,8 +1,7 @@
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 from gbf_automata.enums.content_type import ContentType
-from typing import Union
-
+from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
 
 class Settings(BaseSettings):
     display: str = Field(default=None)
@@ -34,6 +33,8 @@ class Settings(BaseSettings):
 
     content_type: ContentType = Field(default=None)
 
+    arcarum_v2: ArcarumV2Model = Field(default=None)
+
     @field_validator("content_type", mode="before")
     @classmethod
     def str_to_enum(cls, value) -> ContentType:
@@ -48,3 +49,11 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+if __name__ == "__main__":
+    print(settings.arcarum_v2)    
+
+    pass    
+
+
