@@ -1,6 +1,8 @@
+from typing import List, Tuple
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.schema.display_schema import DisplayModel
 from gbf_automata.schema.image_schema import ImageModel
+
 
 class GameArea:
     def __init__(
@@ -54,10 +56,16 @@ class GameArea:
             - top_loc[1],
         }
 
+    
+    def accuracy(self) -> List[Tuple[str, float]]:
+        return [
+            ("top", self.top.accuracy()), ("bottom", self.bottom.accuracy())
+        ] 
+
     def display_area(self) -> dict:
         return {
             "top": self.aspect_ratio.top,
             "left": self.aspect_ratio.left,
             "width": self.aspect_ratio.width,
             "height": self.aspect_ratio.height,
-        }
+        }   
