@@ -35,7 +35,6 @@ class GBFGame:
         self,
         element: str,
         method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED,
-        accuracy_threshold: float = 0.95,
         correction: Point = (0, 0),
     ) -> ImageModel:
         if element:
@@ -194,7 +193,7 @@ class GBFGame:
             for _ in range(0, self.max_attemps):
                 result = self.search_for_element(element=settings.image_arcarum)
 
-                if result.accuracy() >= 0.95:
+                if result.accuracy() >= self.accuracy_threshold:
                     arcarum = result
                     break
 
