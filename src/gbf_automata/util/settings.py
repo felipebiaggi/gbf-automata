@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     image_back_stage: str = Field(default=None)
     image_forward_stage: str = Field(default=None)
 
+    image_slithering_seductress: str = Field(default=None)
+
+
     content_type: ContentType = Field(default=None)
 
     arcarum_v2: ArcarumV2Model = Field(default=None)

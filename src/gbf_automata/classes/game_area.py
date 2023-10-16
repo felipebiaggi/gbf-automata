@@ -16,11 +16,13 @@ class GameArea:
         self.bottom: ImageModel = bottom
     
 
-    ### Display ###
+                                  ### Display ###
     ##########################################################################
-    #
-    #                    (Game Area)
-    #  (top, left) -> +--------------+
+    #               (top)      
+    #                 |
+    #                 |
+    #                 v  (Game Area)
+    #       (left) -> +--------------+
     #                 |              |
     #                 |              |
     #                 |              |

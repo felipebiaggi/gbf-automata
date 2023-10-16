@@ -30,7 +30,9 @@ class GBFGame:
         self.content: ContentType = settings.content_type
         self.max_attemps: int = 5
 
-        self.area = None
+        self.area = self.calibrate(
+            home=True
+        )
 
         # States
         self.state_calibration: bool = False
