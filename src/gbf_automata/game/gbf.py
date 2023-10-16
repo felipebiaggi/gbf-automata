@@ -4,12 +4,14 @@ import time
 import pyautogui
 import cv2 as cv
 import numpy as np
-from typing import List
+from typing import List, Tuple
+from gbf_automata.data import arcarum_v2
 
 from gbf_automata.data.arcarum_v2.coordinates import arcarum_v2_coordinates
 from gbf_automata.classes.game_area import GameArea
 from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
 from gbf_automata.schema.image_schema import ImageModel
 from gbf_automata.util.settings import settings
 from gbf_automata.util.logger import get_logger
@@ -176,13 +178,20 @@ class GBFGame:
                 )
 
         self.state_calibration = True
-        self.game_area = result
+        self.area = result
 
     def wait(self, seconds: float = 2.0):
         time.sleep(seconds)
 
 
-    def arcarum_v2_stage_reset(self):
+    def arcarum_v2_node_coordinates(self, arcarum_v2: ArcarumV2Model) -> Tuple[float, float]:
+        coordinates = arcarum_v2_coordinates[arcarum_v2.zone]["stage"][arcarum_v2.subzone.stage]["node"][arcarum_v2.subzone.node] 
+        
+        game_area = self.area.correction()
+
+        return (coordinates[0] + game_area[0], coordinates[1] + game_area[1])
+
+    def arcarum_v2_select_stage(self, arcarum_v2: ArcarumV2Model):
         
         image_back_result = self.search_for_element(
             element=settings.image_back_stage
@@ -202,13 +211,21 @@ class GBFGame:
             self.wait(0.5)
             pyautogui.click()
            
-            return
 
-        logger.debug("Invalid stage")
+        for _ in range(1, arcarum_v2.subzone.stage):
+            pyautogui.moveTo(*image_forward_result.center())
+            pyautogui.click()
+            self.wait(0.5)
+
+        pyautogui.moveTo(
+            *self.arcarum_v2_node_coordinates(arcarum_v2=arcarum_v2)
+        )
+
+        pyautogui.click()
 
 
+    
     def start(self):
-
         self.move_to_main_page()
         self.wait(seconds=4.0)
         self.calibrate(
@@ -255,7 +272,6 @@ class GBFGame:
                 pyautogui.click()
 
             ### Select Stage
-
             if ArcarumV2Zone.ELETIO == settings.arcarum_v2.zone:
                 arcarum_zone = self.search_for_element(
                     element=settings.image_zone_eletio
@@ -270,7 +286,9 @@ class GBFGame:
 
                 self.wait(4.0)
 
-                self.arcarum_v2_stage_reset()
+                self.arcarum_v2_select_stage(
+                    arcarum_v2=settings.arcarum_v2
+                )
 
 
 if __name__ == "__main__":

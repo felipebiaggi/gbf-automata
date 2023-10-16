@@ -2,7 +2,7 @@ from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 
 arcarum_v2_coordinates = {
     ArcarumV2Zone.ELETIO: {
-        "subzone": {
+        "stage": {
             1: {
                 "node": {
                     1: (211, 338),
@@ -15,3 +15,4 @@ arcarum_v2_coordinates = {
         }
     }
 }
+

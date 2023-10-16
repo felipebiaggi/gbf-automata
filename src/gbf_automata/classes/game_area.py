@@ -69,3 +69,16 @@ class GameArea:
             "width": self.aspect_ratio.width,
             "height": self.aspect_ratio.height,
         }   
+
+    
+    def correction(self) -> Tuple[float, float]:
+
+        top_loc = self.top.max_loc
+
+        if self.top.method in [
+            TemplateMatch.TM_SQDIFF,
+            TemplateMatch.TM_SQDIFF_NORMED,
+        ]:
+            top_loc = self.top.min_loc
+
+        return (self.aspect_ratio.left + top_loc[0], self.aspect_ratio.top + top_loc[1])
