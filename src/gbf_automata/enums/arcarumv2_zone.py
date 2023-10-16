@@ -1,6 +1,6 @@
 from enum import Enum
 
-class ArcarumV2Zone(Enum):
+class ArcarumV2Zone(str, Enum):
     ELETIO = "ELETIO"
     FAYM = "FAYM"
     GOLIATH = "GOLIATH"

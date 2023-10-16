@@ -1,3 +1,4 @@
+from __future__ import annotations
 from cv2.typing import Point
 import mss
 import time
@@ -5,12 +6,12 @@ import pyautogui
 import cv2 as cv
 import numpy as np
 from typing import List, Tuple
-from gbf_automata.data import arcarum_v2
 
 from gbf_automata.data.arcarum_v2.coordinates import arcarum_v2_coordinates
 from gbf_automata.classes.game_area import GameArea
 from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.game.content.arcarum_v2 import ArcarumV2
 from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
 from gbf_automata.schema.image_schema import ImageModel
 from gbf_automata.util.settings import settings
@@ -30,7 +31,7 @@ class GBFGame:
         self.content: ContentType = settings.content_type
         self.max_attemps: int = 5
 
-        self.area = self.calibrate(
+        self.area: GameArea = self.calibrate(
             home=True
         )
 
@@ -92,7 +93,7 @@ class GBFGame:
         pyautogui.click()
 
 
-    def calibrate(self, home: bool = False):
+    def calibrate(self, home: bool = False) -> GameArea:
 
         if home:
             image_top = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
@@ -180,7 +181,8 @@ class GBFGame:
                 )
 
         self.state_calibration = True
-        self.area = result
+        
+        return result
 
     def wait(self, seconds: float = 2.0):
         time.sleep(seconds)
@@ -233,6 +235,12 @@ class GBFGame:
         self.calibrate(
             home=True
         )
+
+        arcarum_v2_script = ArcarumV2(
+            game=self
+        )
+
+        arcarum_v2_script.start()
 
         if settings.content_type == ContentType.ARCARUM_V2:
             arcarum = None

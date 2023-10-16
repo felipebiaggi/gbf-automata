@@ -1,3 +1,4 @@
+import json
 from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 
 arcarum_v2_coordinates = {
@@ -15,4 +16,8 @@ arcarum_v2_coordinates = {
         }
     }
 }
+
+
+if __name__ == "__main__":
+    print(json.dumps(arcarum_v2_coordinates))    
 
