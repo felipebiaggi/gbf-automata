@@ -1,5 +1,6 @@
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
+from gbf_automata.classes import default
 from gbf_automata.enums.content_type import ContentType
 from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
 
@@ -30,6 +31,9 @@ class Settings(BaseSettings):
     image_zone_joculator: str = Field(default=None)
     image_zone_kalendae: str = Field(default=None)
     image_zone_liber: str = Field(default=None)
+
+    image_back_stage: str = Field(default=None)
+    image_forward_stage: str = Field(default=None)
 
     content_type: ContentType = Field(default=None)
 

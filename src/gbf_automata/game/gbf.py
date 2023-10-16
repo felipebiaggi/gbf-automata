@@ -6,7 +6,9 @@ import cv2 as cv
 import numpy as np
 from typing import List
 
+from gbf_automata.data.arcarum_v2.coordinates import arcarum_v2_coordinates
 from gbf_automata.classes.game_area import GameArea
+from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.schema.image_schema import ImageModel
 from gbf_automata.util.settings import settings
@@ -179,6 +181,32 @@ class GBFGame:
     def wait(self, seconds: float = 2.0):
         time.sleep(seconds)
 
+
+    def arcarum_v2_stage_reset(self):
+        
+        image_back_result = self.search_for_element(
+            element=settings.image_back_stage
+        )
+
+        image_forward_result = self.search_for_element(
+            element=settings.image_forward_stage
+        )
+
+        if image_back_result.accuracy() <= self.accuracy_threshold and image_forward_result.accuracy() >= self.accuracy_threshold:
+            logger.info("Already at the correct Stage!")
+            return
+
+        if image_back_result.accuracy() >= self.accuracy_threshold:
+            pyautogui.moveTo(*image_back_result.center())
+            pyautogui.click()
+            self.wait(0.5)
+            pyautogui.click()
+           
+            return
+
+        logger.debug("Invalid stage")
+
+
     def start(self):
 
         self.move_to_main_page()
@@ -214,12 +242,12 @@ class GBFGame:
                 element=settings.image_button_classic
             )
 
-            if type_arcarum.accuracy() < 0.95:
+            if type_arcarum.accuracy() < self.accuracy_threshold:
                 arcarum_sandbox = self.search_for_element(
                     element=settings.image_button_sandbox
                 )
 
-                if arcarum_sandbox.accuracy() < 0.95:
+                if arcarum_sandbox.accuracy() < self.accuracy_threshold:
                     raise GBFAutomataError("Invalid page")
 
                 pyautogui.moveTo(*arcarum_sandbox.center(correction=True))
@@ -228,7 +256,21 @@ class GBFGame:
 
             ### Select Stage
 
+            if ArcarumV2Zone.ELETIO == settings.arcarum_v2.zone:
+                arcarum_zone = self.search_for_element(
+                    element=settings.image_zone_eletio
+                )
+
+                if arcarum_zone.accuracy() < self.accuracy_threshold:
+                    raise GBFAutomataError("Arcarum Zone not found!")
+
+                pyautogui.moveTo(*arcarum_zone.center(correction=True))
              
+                pyautogui.click()
+
+                self.wait(4.0)
+
+                self.arcarum_v2_stage_reset()
 
 
 if __name__ == "__main__":
