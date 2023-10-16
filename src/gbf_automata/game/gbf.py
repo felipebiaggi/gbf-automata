@@ -5,7 +5,7 @@ import time
 import pyautogui
 import cv2 as cv
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from gbf_automata.data.arcarum_v2.coordinates import arcarum_v2_coordinates
 from gbf_automata.classes.game_area import GameArea
@@ -31,9 +31,7 @@ class GBFGame:
         self.content: ContentType = settings.content_type
         self.max_attemps: int = 5
 
-        self.area: GameArea = self.calibrate(
-            home=True
-        )
+        self.area: Optional[GameArea]
 
         # States
         self.state_calibration: bool = False
@@ -51,10 +49,7 @@ class GBFGame:
             with mss.mss() as sct:
                 for monitor in sct.monitors:
                     template = cv.cvtColor(
-                        src=np.asarray(
-                            sct.grab(monitor)
-                        ), 
-                        code=cv.COLOR_RGBA2GRAY
+                        src=np.asarray(sct.grab(monitor)), code=cv.COLOR_RGBA2GRAY
                     )
 
                     res_element = cv.matchTemplate(
@@ -83,76 +78,86 @@ class GBFGame:
 
         raise GBFAutomataError(f"Invalid image path: <{element}>")
 
+    def search_for_element_and_scroll(
+        self,
+        element: str,
+    ):
+        for _ in range(0, self.max_attemps):
+            image = self.search_for_element(element=element)
+
+            if image.accuracy() <= self.accuracy_threshold:
+                pyautogui.scroll(-5)
+                self.wait(0.5)
+            else:
+                pyautogui.moveTo(*image.center())
+                pyautogui.click()
+                self.wait(4.0)
+                break
+
     def move_to_main_page(self):
         home_image_model = self.search_for_element(
             element=settings.image_home_bottom,
         )
 
         pyautogui.moveTo(*home_image_model.center())
-        
+
         pyautogui.click()
 
-
     def calibrate(self, home: bool = False) -> GameArea:
-
         if home:
             image_top = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
         else:
             image_top = cv.imread(settings.image_home_top, cv.IMREAD_UNCHANGED)
-            
-        image_bottom = cv.imread(settings.image_home_bottom, cv.IMREAD_UNCHANGED) 
+
+        image_bottom = cv.imread(settings.image_home_bottom, cv.IMREAD_UNCHANGED)
 
         w_top, h_top = image_top.shape[::-1]
         w_bottom, h_bottom = image_bottom.shape[::-1]
-        
 
         search: List = []
 
         with mss.mss() as sct:
             for monitor in sct.monitors:
-
                 template = cv.cvtColor(
-                    src=np.asarray(
-                        sct.grab(monitor)
-                    ),
-                    code=cv.COLOR_RGBA2GRAY
+                    src=np.asarray(sct.grab(monitor)), code=cv.COLOR_RGBA2GRAY
                 )
 
                 res_image_top = cv.matchTemplate(
-                    image=image_top,
-                    templ=template,
-                    method=self.method
+                    image=image_top, templ=template, method=self.method
                 )
 
                 res_image_bottom = cv.matchTemplate(
-                    image=image_bottom,
-                    templ=template,
-                    method=self.method
+                    image=image_bottom, templ=template, method=self.method
                 )
-
 
                 min_val_top, max_val_top, min_loc_top, max_loc_top = cv.minMaxLoc(
                     res_image_top
                 )
 
-                min_val_bottom, max_val_bottom, min_loc_bottom, max_loc_bottom = cv.minMaxLoc(
-                    res_image_bottom
-                )
-    
-                if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
+                (
+                    min_val_bottom,
+                    max_val_bottom,
+                    min_loc_bottom,
+                    max_loc_bottom,
+                ) = cv.minMaxLoc(res_image_bottom)
+
+                if self.method in [
+                    TemplateMatch.TM_SQDIFF,
+                    TemplateMatch.TM_SQDIFF_NORMED,
+                ]:
                     self.correction = min_loc_top
                 else:
                     self.correction = max_loc_top
 
                 top = ImageModel(
-                   method=self.method,
-                   image_width=w_top,
-                   image_height=h_top,
-                   min_val=min_val_top,
-                   max_val=max_val_top,  
-                   min_loc=min_loc_top,
-                   max_loc=max_loc_top
-                )   
+                    method=self.method,
+                    image_width=w_top,
+                    image_height=h_top,
+                    min_val=min_val_top,
+                    max_val=max_val_top,
+                    min_loc=min_loc_top,
+                    max_loc=max_loc_top,
+                )
 
                 bottom = ImageModel(
                     method=self.method,
@@ -161,16 +166,10 @@ class GBFGame:
                     min_val=min_val_bottom,
                     max_val=max_val_bottom,
                     min_loc=min_loc_bottom,
-                    max_loc=max_loc_bottom
+                    max_loc=max_loc_bottom,
                 )
 
-                search.append(
-                    GameArea(
-                        aspect_ratio=monitor,
-                        top=top,
-                        bottom=bottom
-                    )
-                )
+                search.append(GameArea(aspect_ratio=monitor, top=top, bottom=bottom))
 
         result = max(search, key=lambda game_area: game_area.accuracy())
 
@@ -181,31 +180,34 @@ class GBFGame:
                 )
 
         self.state_calibration = True
-        
-        return result
+
+        self.game_area = result
 
     def wait(self, seconds: float = 2.0):
         time.sleep(seconds)
 
+    def arcarum_v2_node_coordinates(
+        self, arcarum_v2: ArcarumV2Model
+    ) -> Tuple[float, float]:
+        coordinates = arcarum_v2_coordinates[arcarum_v2.zone]["stage"][
+            arcarum_v2.subzone.stage
+        ]["node"][arcarum_v2.subzone.node]
 
-    def arcarum_v2_node_coordinates(self, arcarum_v2: ArcarumV2Model) -> Tuple[float, float]:
-        coordinates = arcarum_v2_coordinates[arcarum_v2.zone]["stage"][arcarum_v2.subzone.stage]["node"][arcarum_v2.subzone.node] 
-        
         game_area = self.area.correction()
 
         return (coordinates[0] + game_area[0], coordinates[1] + game_area[1])
 
     def arcarum_v2_select_stage(self, arcarum_v2: ArcarumV2Model):
-        
-        image_back_result = self.search_for_element(
-            element=settings.image_back_stage
-        )
+        image_back_result = self.search_for_element(element=settings.image_back_stage)
 
         image_forward_result = self.search_for_element(
             element=settings.image_forward_stage
         )
 
-        if image_back_result.accuracy() <= self.accuracy_threshold and image_forward_result.accuracy() >= self.accuracy_threshold:
+        if (
+            image_back_result.accuracy() <= self.accuracy_threshold
+            and image_forward_result.accuracy() >= self.accuracy_threshold
+        ):
             logger.info("Already at the correct Stage!")
             return
 
@@ -214,91 +216,26 @@ class GBFGame:
             pyautogui.click()
             self.wait(0.5)
             pyautogui.click()
-           
 
         for _ in range(1, arcarum_v2.subzone.stage):
             pyautogui.moveTo(*image_forward_result.center())
             pyautogui.click()
             self.wait(0.5)
 
-        pyautogui.moveTo(
-            *self.arcarum_v2_node_coordinates(arcarum_v2=arcarum_v2)
-        )
+        pyautogui.moveTo(*self.arcarum_v2_node_coordinates(arcarum_v2=arcarum_v2))
 
         pyautogui.click()
 
-
-    
     def start(self):
         self.move_to_main_page()
+
         self.wait(seconds=4.0)
-        self.calibrate(
-            home=True
-        )
-
-        arcarum_v2_script = ArcarumV2(
-            game=self
-        )
-
-        arcarum_v2_script.start()
+        self.calibrate(home=True)
 
         if settings.content_type == ContentType.ARCARUM_V2:
-            arcarum = None
+            arcarum_v2 = ArcarumV2(game=self)
 
-            for _ in range(0, self.max_attemps):
-                result = self.search_for_element(element=settings.image_arcarum)
-
-                if result.accuracy() >= self.accuracy_threshold:
-                    arcarum = result
-                    break
-
-                pyautogui.scroll(-5)
-
-                self.wait(0.5)
-
-            if not arcarum:
-                raise GBFAutomataError("Arcarum banner not found.")
-
-            pyautogui.moveTo(*arcarum.center(correction=True))
-
-            pyautogui.click()
-
-            self.wait(4.0)
-
-            type_arcarum = self.search_for_element(
-                element=settings.image_button_classic
-            )
-
-            if type_arcarum.accuracy() < self.accuracy_threshold:
-                arcarum_sandbox = self.search_for_element(
-                    element=settings.image_button_sandbox
-                )
-
-                if arcarum_sandbox.accuracy() < self.accuracy_threshold:
-                    raise GBFAutomataError("Invalid page")
-
-                pyautogui.moveTo(*arcarum_sandbox.center(correction=True))
-
-                pyautogui.click()
-
-            ### Select Stage
-            if ArcarumV2Zone.ELETIO == settings.arcarum_v2.zone:
-                arcarum_zone = self.search_for_element(
-                    element=settings.image_zone_eletio
-                )
-
-                if arcarum_zone.accuracy() < self.accuracy_threshold:
-                    raise GBFAutomataError("Arcarum Zone not found!")
-
-                pyautogui.moveTo(*arcarum_zone.center(correction=True))
-             
-                pyautogui.click()
-
-                self.wait(4.0)
-
-                self.arcarum_v2_select_stage(
-                    arcarum_v2=settings.arcarum_v2
-                )
+            arcarum_v2.start()
 
 
 if __name__ == "__main__":

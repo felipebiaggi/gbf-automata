@@ -10,7 +10,7 @@ arcarum_v2_coordinates = {
                     2: (111, 232),
                     3: (245, 196),
                     4: (381, 217),
-                    5: (335, 358)
+                    5: (335, 358),
                 }
             }
         }
@@ -19,5 +19,4 @@ arcarum_v2_coordinates = {
 
 
 if __name__ == "__main__":
-    print(json.dumps(arcarum_v2_coordinates))    
-
+    print(json.dumps(arcarum_v2_coordinates))

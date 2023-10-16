@@ -10,15 +10,15 @@ class GameArea:
         aspect_ratio: dict,
         top: ImageModel,
         bottom: ImageModel,
-    ) -> None: 
+    ) -> None:
         self.aspect_ratio = DisplayModel(**aspect_ratio)
         self.top: ImageModel = top
         self.bottom: ImageModel = bottom
-    
 
-                                  ### Display ###
+        ### Display ###
+
     ##########################################################################
-    #               (top)      
+    #               (top)
     #                 |
     #                 |
     #                 v  (Game Area)
@@ -58,11 +58,8 @@ class GameArea:
             - top_loc[1],
         }
 
-    
     def accuracy(self) -> List[Tuple[str, float]]:
-        return [
-            ("top", self.top.accuracy()), ("bottom", self.bottom.accuracy())
-        ] 
+        return [("top", self.top.accuracy()), ("bottom", self.bottom.accuracy())]
 
     def display_area(self) -> dict:
         return {
@@ -70,11 +67,9 @@ class GameArea:
             "left": self.aspect_ratio.left,
             "width": self.aspect_ratio.width,
             "height": self.aspect_ratio.height,
-        }   
+        }
 
-    
     def correction(self) -> Tuple[float, float]:
-
         top_loc = self.top.max_loc
 
         if self.top.method in [

@@ -4,6 +4,7 @@ from gbf_automata.classes import default
 from gbf_automata.enums.content_type import ContentType
 from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
 
+
 class Settings(BaseSettings):
     display: str = Field(default=None)
     log_level: str = "INFO"
@@ -36,7 +37,6 @@ class Settings(BaseSettings):
     image_forward_stage: str = Field(default=None)
 
     image_slithering_seductress: str = Field(default=None)
-
 
     content_type: ContentType = Field(default=None)
 
