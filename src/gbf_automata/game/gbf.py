@@ -204,8 +204,7 @@ class GBFGame:
         )
 
         if (
-            image_back_result.accuracy() <= self.accuracy_threshold
-            and image_forward_result.accuracy() >= self.accuracy_threshold
+                image_back_result.accuracy() <= self.accuracy_threshold <= image_forward_result.accuracy()
         ):
             logger.info("Already at the correct Stage!")
             return
@@ -235,8 +234,3 @@ class GBFGame:
             arcarum_v2 = ArcarumV2(game=self)
 
             arcarum_v2.start()
-
-
-if __name__ == "__main__":
-    game = GBFGame()
-    game.start()
