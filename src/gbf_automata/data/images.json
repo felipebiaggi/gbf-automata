@@ -13,10 +13,10 @@
    },
    "arcarum":{
       "classic":{
-         "buttom":"resource/arcarum/image_button_sandbox_gray.png"
+         "button":"resource/arcarum/image_button_sandbox_gray.png"
       },
       "sandbox":{
-         "buttom":"resource/arcarum/image_button_classic_gray.png",
+         "button":"resource/arcarum/image_button_classic_gray.png",
          "zones":{
             "back_stage":"resource/arcarum/image_back_stage_gray.png",
             "forward_stage":"resource/arcarum/image_forward_stage_gray.png",

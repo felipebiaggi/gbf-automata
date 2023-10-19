@@ -12,36 +12,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_format: str = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
 
-    image_menu: str = Field(default=None)
-    image_news: str = Field(default=None)
-    image_home_top: str = Field(default=None)
-    image_home_bottom: str = Field(default=None)
-    image_back: str = Field(default=None)
-    image_reload: str = Field(default=None)
-    image_arcarum: str = Field(default=None)
-    image_gw: str = Field(default=None)
-
-    image_button_classic: str = Field(default=None)
-    image_button_sandbox: str = Field(default=None)
-    image_zone_mundus: str = Field(default=None)
-
-    image_zone_eletio: str = Field(default=None)
-    image_zone_faym: str = Field(default=None)
-    image_zone_goliath: str = Field(default=None)
-    image_zone_harbinger: str = Field(default=None)
-
-    image_zone_invidia: str = Field(default=None)
-    image_zone_joculator: str = Field(default=None)
-    image_zone_kalendae: str = Field(default=None)
-    image_zone_liber: str = Field(default=None)
-
-    image_back_stage: str = Field(default=None)
-    image_forward_stage: str = Field(default=None)
-
-    image_slithering_seductress: str = Field(default=None)
-
     content_type: ContentType = Field(default=None)
-
     arcarum_v2: ArcarumV2Model = Field(default=None)
 
     @field_validator("content_type", mode="before")
