@@ -9,7 +9,6 @@ from typing import List, Tuple, Optional
 
 from gbf_automata.data.arcarum_v2.coordinates import arcarum_v2_coordinates
 from gbf_automata.classes.game_area import GameArea
-from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.game.content.arcarum_v2 import ArcarumV2
 from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
@@ -103,7 +102,7 @@ class GBFGame:
 
         pyautogui.click()
 
-    def calibrate(self, home: bool = False) -> GameArea:
+    def calibrate(self, home: bool = False):
         if home:
             image_top = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
         else:
@@ -193,7 +192,7 @@ class GBFGame:
             arcarum_v2.subzone.stage
         ]["node"][arcarum_v2.subzone.node]
 
-        game_area = self.area.correction()
+        game_area = self.area.correction()  # type: ignore
 
         return (coordinates[0] + game_area[0], coordinates[1] + game_area[1])
 
