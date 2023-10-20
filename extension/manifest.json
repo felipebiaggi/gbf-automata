@@ -1,15 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "Gbf Analyzer",
+  "name": "Granblue Fantasy: Request Analyzer",
   "version": "1.0",
-  "description": "Foo",
+  "background": {
+    "service_worker": "background/worker.js",
+    "type": "module"
+  },
   "content_scripts": [
     {
-      "js": ["scripts/content.js"],
+      "js": [
+        "content/content.js"
+      ],
       "matches": [
-        "https://developer.chrome.com/docs/extensions/*",
-        "https://developer.chrome.com/docs/webstore/*"
+        "https://game.granbluefantasy.jp/*"
       ]
     }
-  ]
+  ],
+  "permissions": ["tabs","activeTab","scripting","contextMenus"],
+  "host_permissions": ["https://*/"] 
 }
+
+
+
