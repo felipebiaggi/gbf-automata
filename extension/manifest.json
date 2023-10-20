@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Gbf Analyzer",
+  "version": "1.0",
+  "description": "Foo",
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": [
+        "https://developer.chrome.com/docs/extensions/*",
+        "https://developer.chrome.com/docs/webstore/*"
+      ]
+    }
+  ]
+}

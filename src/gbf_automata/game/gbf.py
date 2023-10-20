@@ -13,6 +13,7 @@ from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.game.content.arcarum_v2 import ArcarumV2
 from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
 from gbf_automata.schema.image import ImageModel
+from gbf_automata.schema.data import data_model
 from gbf_automata.util.settings import settings
 from gbf_automata.util.logger import get_logger
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
@@ -29,7 +30,6 @@ class GBFGame:
         self.method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED
         self.content: ContentType = settings.content_type
         self.max_attemps: int = 5
-
         self.area: Optional[GameArea]
 
         # States
@@ -95,7 +95,7 @@ class GBFGame:
 
     def move_to_main_page(self):
         home_image_model = self.search_for_element(
-            element=settings.image_home_bottom,
+            element=data_model.main.home_bottom,
         )
 
         pyautogui.moveTo(*home_image_model.center())
@@ -104,11 +104,11 @@ class GBFGame:
 
     def calibrate(self, home: bool = False):
         if home:
-            image_top = cv.imread(settings.image_news, cv.IMREAD_UNCHANGED)
+            image_top = cv.imread(data_model.main.news, cv.IMREAD_UNCHANGED)
         else:
-            image_top = cv.imread(settings.image_home_top, cv.IMREAD_UNCHANGED)
+            image_top = cv.imread(data_model.main.home_top, cv.IMREAD_UNCHANGED)
 
-        image_bottom = cv.imread(settings.image_home_bottom, cv.IMREAD_UNCHANGED)
+        image_bottom = cv.imread(data_model.main.home_bottom, cv.IMREAD_UNCHANGED)
 
         w_top, h_top = image_top.shape[::-1]
         w_bottom, h_bottom = image_bottom.shape[::-1]

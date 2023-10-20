@@ -1,7 +1,7 @@
 from typing import List, Tuple
 from gbf_automata.enums.template_match import TemplateMatch
-from gbf_automata.schema.display_schema import DisplayModel
-from gbf_automata.schema.image_schema import ImageModel
+from gbf_automata.schema.display import DisplayModel
+from gbf_automata.schema.image import ImageModel
 
 
 class GameArea:
