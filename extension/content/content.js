@@ -18,3 +18,4 @@ const observer = new MutationObserver(function(mutations) {
 const config = { attributes: true, attributeOldValue: true };
 
 observer.observe(target, config);
+

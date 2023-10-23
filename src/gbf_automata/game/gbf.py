@@ -22,7 +22,6 @@ from gbf_automata.enums.content_type import ContentType
 
 logger = get_logger(__name__)
 
-
 class GBFGame:
     def __init__(self):
         self.accuracy_threshold: float = 0.90
@@ -236,3 +235,4 @@ class GBFGame:
             arcarum_v2 = ArcarumV2(game=self)
 
             arcarum_v2.start()
+

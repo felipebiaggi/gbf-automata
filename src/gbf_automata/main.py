@@ -1,5 +1,3 @@
-from mss import exception
-from gbf_automata.game.gbf import GBFGame
 import multiprocessing
 import socket
 import selectors
@@ -68,8 +66,27 @@ def create_socket():
         sel.close()
 
 
+class LoadState(object):
+    def __init__(self) -> None:
+        self._state = None
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        print("State Change!")
+        self._state = value
+
+
 if __name__ == "__main__":
-    create_socket()
+
+    load_state: LoadState = LoadState()
+
+    load_state = "finished"
+
+    # create_socket()
 
     # game = GBFGame()
     # game.start()
