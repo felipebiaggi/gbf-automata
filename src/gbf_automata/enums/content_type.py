@@ -1,8 +1,8 @@
-from enum import IntEnum, Enum
+from enum import Enum
 
 
-class ContentType(IntEnum):
-    ARCARUM_V2 = 0
-    ARCARUM = 1
-    GW = 3
-    HALO = 4
+class ContentType(str, Enum):
+    GW = "GW"
+    HALO = "HALO"
+    ARCARUM = "ARCARUM"
+    ARCARUM_V2 = "ARCARUM_V2"

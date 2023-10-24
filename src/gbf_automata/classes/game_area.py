@@ -1,7 +1,7 @@
 from typing import List, Tuple
-from gbf_automata.enums.template_match import TemplateMatch
-from gbf_automata.schema.display import DisplayModel
 from gbf_automata.schema.image import ImageModel
+from gbf_automata.schema.display import DisplayModel
+from gbf_automata.enums.template_match import TemplateMatch
 
 
 class GameArea:
@@ -11,12 +11,11 @@ class GameArea:
         top: ImageModel,
         bottom: ImageModel,
     ) -> None:
+        self.top = top
+        self.bottom = bottom
         self.aspect_ratio = DisplayModel(**aspect_ratio)
-        self.top: ImageModel = top
-        self.bottom: ImageModel = bottom
 
-        ### Display ###
-
+    # Display
     ##########################################################################
     #               (top)
     #                 |

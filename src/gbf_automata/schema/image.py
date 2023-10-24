@@ -1,7 +1,7 @@
-from pydantic import BaseModel
 from typing import Tuple
-from gbf_automata.enums.template_match import TemplateMatch
 from cv2.typing import Point
+from pydantic import BaseModel
+from gbf_automata.enums.template_match import TemplateMatch
 
 
 class ImageModel(BaseModel):

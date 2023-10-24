@@ -1,26 +1,26 @@
 from __future__ import annotations
 import mss
 import time
-import pyautogui
 import cv2 as cv
 import numpy as np
+import pyautogui
 from cv2.typing import Point
 from typing import List, Tuple, Optional
 
-from gbf_automata.data.arcarum_v2.coordinates import arcarum_v2_coordinates
-from gbf_automata.classes.game_area import GameArea
-from gbf_automata.enums.template_match import TemplateMatch
-from gbf_automata.game.content.arcarum_v2 import ArcarumV2
-from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
-from gbf_automata.schema.image import ImageModel
-from gbf_automata.schema.data import data_model
-from gbf_automata.util.settings import settings
 from gbf_automata.util.logger import get_logger
-from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
+from gbf_automata.util.settings import settings
+from gbf_automata.classes.game_area import GameArea
 from gbf_automata.enums.content_type import ContentType
+from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.schema.data import data_model
+from gbf_automata.schema.image import ImageModel
+from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
+from gbf_automata.game.content.arcarum_v2 import ArcarumV2
+from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
 
 
 logger = get_logger(__name__)
+
 
 class GBFGame:
     def __init__(self):
@@ -235,4 +235,3 @@ class GBFGame:
             arcarum_v2 = ArcarumV2(game=self)
 
             arcarum_v2.start()
-

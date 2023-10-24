@@ -1,6 +1,6 @@
-from functools import lru_cache
 import json
 from pydantic import BaseModel
+from functools import lru_cache
 
 
 class MainModel(BaseModel):

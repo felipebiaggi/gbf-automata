@@ -1,27 +1,26 @@
 from typing import Tuple, List
-from gbf_automata.enums.template_match import TemplateMatch
-from gbf_automata.schema.display import DisplayModel
 from gbf_automata.schema.image import ImageModel
-
+from gbf_automata.schema.display import DisplayModel
+from gbf_automata.enums.template_match import TemplateMatch
 
 class Default:
     def __init__(
         self,
-        aspect_ratio: dict,
         menu: ImageModel,
+        aspect_ratio: dict,
         top_left_home: ImageModel,
         bottom_right_home: ImageModel,
     ) -> None:
+        self.menu = menu
         self.aspect_ratio = DisplayModel(**aspect_ratio)
-        self.menu: ImageModel = menu
-        self.top_left_home: ImageModel = top_left_home
-        self.bottom_right_home: ImageModel = bottom_right_home
+        self.top_left_home = top_left_home
+        self.bottom_right_home = bottom_right_home
 
     def accuracy(self) -> List[Tuple[str, float]]:
         return [
             ("top_left_home", self.top_left_home.accuracy()),
             ("bottom_right_home", self.bottom_right_home.accuracy()),
-            ("nemu", self.menu.accuracy()),
+            ("memu", self.menu.accuracy()),
         ]
 
     def game_area(self) -> dict:

@@ -2,11 +2,11 @@ from enum import Enum
 
 
 class ArcarumV2Zone(str, Enum):
-    ELETIO = "ELETIO"
     FAYM = "FAYM"
+    LIBER = "LIBER"
+    ELETIO = "ELETIO"
+    INVIDIA = "INVIDIA"
     GOLIATH = "GOLIATH"
     HARBINGER = "HARBINGER"
-    INVIDIA = "INVIDIA"
     JOCULATOR = "JOCULATOR"
     KALEANDAE = "KALEANDAE"
-    LIBER = "LIBER"
