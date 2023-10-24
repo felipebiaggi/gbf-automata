@@ -2,22 +2,21 @@ import multiprocessing
 from gbf_automata.enums.state import State
 
 
-class LoadState(object):
+class State(object):
     def __init__(self) -> None:
-        self._state = State.NONE
+        self._state: State
         self._lock = multiprocessing.Lock()
 
     @property
-    def state(self):
+    def state(self) -> State:
         with self._lock:
             return self._state
 
     @state.setter
-    def state(self, value):
+    def state(self, value: State) -> None:
         with self._lock:
             self._state = value
 
-    @state.getter
-    def state(self):
-        with self._lock:
-            return self._state
+
+def get_state() -> State:
+    return State()

@@ -2,8 +2,6 @@ import websockets.sync.server
 from gbf_automata.util.logger import get_logger
 from websockets.sync.connection import Connection
 
-from gbf_automata.util.logger import get_logger
-
 logger = get_logger(__name__)
 
 
@@ -20,7 +18,8 @@ def handler(connection: Connection) -> None:
         for (
             message
         ) in connection:  # Se a conexão é fechada o iterator levante um exception.
-            logger.info(message)
+            if message == "loading":
+                logger.info("Loading")
     except websockets.ConnectionClosedError as err:
         logger.error(f"Connection error: <{err}>.")
     except (
