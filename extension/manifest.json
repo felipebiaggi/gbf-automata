@@ -16,7 +16,13 @@
       ]
     }
   ],
-  "permissions": ["tabs","activeTab","scripting","contextMenus"],
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "background"
+  ],
   "host_permissions": ["https://*/"] 
 }
 

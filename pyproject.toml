@@ -20,6 +20,7 @@ black = "^23.7.0"
 pydantic = "^2.4.0"
 pydantic-settings = "^2.0.2"
 mypy = "^1.6.1"
+python-socketio = "^5.10.0"
 
 [tool.poetry.scripts]
 start = "gbf_ocr.main:start"
