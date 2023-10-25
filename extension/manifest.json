@@ -21,7 +21,8 @@
     "activeTab",
     "scripting",
     "contextMenus",
-    "background"
+    "background",
+    "offscreen"
   ],
   "host_permissions": ["https://*/"] 
 }

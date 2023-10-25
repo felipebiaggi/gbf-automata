@@ -1,18 +1,58 @@
-import './lib/socket.io.js';
+let webSocket = null;
 
-const socket = io('127.0.0.1:65432', {
-  jsonp: false,
-});
+function connect(){
+  webSocket = new WebSocket("ws://localhost:65432");
 
-socket.on('connect', ()=>{
-  console.log("Connection successful")
-});
+  webSocket.onopen = () => {
+    console.log("Connection Open.");
+    keepAlive();
+  }
 
-socket.on("connect_error", (error) => {
-  console.log(`Connection error: <${error}>`)
-});
+  webSocket.onclose = () => {
+    console.log('Connection Closed.');
+    webSocket = null;
+  };
+}
+
+function disconnect() {
+  if (webSocket == null) {
+    return;
+  }
+
+  webSocket.close();
+}
+
+
+function keepAlive() {
+  const keepAliveIntervalId = setInterval(
+    () => {
+      if (webSocket) {
+        webSocket.send('keepalive');
+      } else {
+        clearInterval(keepAliveIntervalId);
+      }
+    },
+    // Set the interval to 20 seconds to prevent the service worker from becoming inactive.
+    20 * 1000 
+  );
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log(socket);
-    socket.emit("Teste")
+    if (webSocket == null){
+      connect()
+    }
+
+    if (webSocket.readyState === 1) {
+    
+      if (message.message === "none"){
+        webSocket.send("none")
+      }
+
+      if (message.message === "block"){
+        webSocket.send("block")
+      }
+
+    }
+
+    console.log(message.message)
   });

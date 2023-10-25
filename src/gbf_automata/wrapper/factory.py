@@ -18,4 +18,4 @@ def pointer(**kwargs: Any) -> PointerBase:
     if os_ == "darwin":
         raise GBFAutomataError(f"system {os_!r} not yet implemented.")
 
-    raise GBFAutomataError(f"LOL?")
+    raise GBFAutomataError("LOL?")

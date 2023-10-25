@@ -7,12 +7,16 @@ function sendMsg(msg){
 const target = document.querySelector('.img-load');
 
 const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
+    mutations.forEach(function() {
       if (target.style.cssText === 'display: none;'){ 
-        sendMsg("Loading Finished.")
+        sendMsg("none")
       }
-    });
+      
+      if (target.style.cssText === 'display: block;'){
+        sendMsg("block")
+      }
 
+    });
 });
 
 const config = { attributes: true, attributeOldValue: true };

@@ -1,6 +1,12 @@
+import functools
 import websockets.sync.server
-from gbf_automata.util.logger import get_logger
+
+from typing import Dict, Any
 from websockets.sync.connection import Connection
+
+from gbf_automata.enums.state import State
+from gbf_automata.util.logger import get_logger
+from gbf_automata.classes.load_state import LoadState
 
 logger = get_logger(__name__)
 
@@ -8,9 +14,13 @@ logger = get_logger(__name__)
 HOST = "127.0.0.1"
 PORT = 65432
 
-
-def handler(connection: Connection) -> None:
+def handler(connection: Connection, **kwargs: Any) -> None:
     connection_id = connection.id
+    load_state = kwargs['extra_argument']
+
+    if not isinstance(load_state, LoadState):
+        raise Exception
+
 
     logger.info(f"Connection open - Client ID: <{connection_id}>")
 
@@ -18,8 +28,12 @@ def handler(connection: Connection) -> None:
         for (
             message
         ) in connection:  # Se a conexão é fechada o iterator levante um exception.
-            if message == "loading":
-                logger.info("Loading")
+            if message == "none":
+                load_state.state = State.NONE
+            
+            if message == "block":
+                load_state.state = State.BLOCK
+
     except websockets.ConnectionClosedError as err:
         logger.error(f"Connection error: <{err}>.")
     except (
@@ -30,10 +44,10 @@ def handler(connection: Connection) -> None:
     logger.info(f"Connection close - Client ID: <{connection_id}>.")
 
 
-def create_websocket_server() -> None:
-    with websockets.sync.server.serve(handler=handler, host=HOST, port=PORT) as server:
+def create_websocket_server(load_state: LoadState) -> None:
+
+    
+    state_handler = functools.partial(handler, extra_argument=load_state)
+
+    with websockets.sync.server.serve(handler=state_handler, host=HOST, port=PORT) as server:
         server.serve_forever()
-
-
-if __name__ == "__main__":
-    create_websocket_server()
