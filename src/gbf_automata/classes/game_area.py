@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 from gbf_automata.schema.image import ImageModel
 from gbf_automata.schema.display import DisplayModel
 from gbf_automata.enums.template_match import TemplateMatch
@@ -7,7 +7,7 @@ from gbf_automata.enums.template_match import TemplateMatch
 class GameArea:
     def __init__(
         self,
-        aspect_ratio: dict,
+        aspect_ratio: Dict[str, Any],
         top: ImageModel,
         bottom: ImageModel,
     ) -> None:
@@ -35,7 +35,7 @@ class GameArea:
     #
     #
 
-    def area(self) -> dict:
+    def area(self) -> Dict[str, Any]:
         top_loc = self.top.max_loc
         bottom_loc = self.bottom.max_loc
 
@@ -60,7 +60,7 @@ class GameArea:
     def accuracy(self) -> List[Tuple[str, float]]:
         return [("top", self.top.accuracy()), ("bottom", self.bottom.accuracy())]
 
-    def display_area(self) -> dict:
+    def display_area(self) -> Dict[str, Any]:
         return {
             "top": self.aspect_ratio.top,
             "left": self.aspect_ratio.left,

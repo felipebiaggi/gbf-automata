@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Any
 from gbf_automata.schema.image import ImageModel
 from gbf_automata.schema.display import DisplayModel
 from gbf_automata.enums.template_match import TemplateMatch
@@ -7,7 +7,7 @@ class Default:
     def __init__(
         self,
         menu: ImageModel,
-        aspect_ratio: dict,
+        aspect_ratio: Dict[str, Any],
         top_left_home: ImageModel,
         bottom_right_home: ImageModel,
     ) -> None:
@@ -23,7 +23,7 @@ class Default:
             ("memu", self.menu.accuracy()),
         ]
 
-    def game_area(self) -> dict:
+    def game_area(self) -> Dict[str, Any]:
         menu_loc = self.menu.max_loc
         top_left_home_loc = self.top_left_home.max_loc
         bottom_right_home_loc = self.bottom_right_home.max_loc
@@ -51,7 +51,7 @@ class Default:
             "mon": 1,
         }
 
-    def full_area(self) -> dict:
+    def full_area(self) -> Dict[str, Any]:
         return {
             "top": self.aspect_ratio.top,
             "left": self.aspect_ratio.left,

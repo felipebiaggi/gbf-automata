@@ -2,7 +2,7 @@ import multiprocessing
 from gbf_automata.enums.state import State
 
 
-class State(object):
+class GameState(object):
     def __init__(self) -> None:
         self._state: State
         self._lock = multiprocessing.Lock()

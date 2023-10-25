@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 
 class GBFGame:
-    def __init__(self):
+    def __init__(self) -> None:
         self.accuracy_threshold: float = 0.90
         self.correction: Point = (0, 0)
         self.method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED

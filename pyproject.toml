@@ -36,6 +36,7 @@ warn_unused_ignores = true
 disallow_any_generics = true
 check_untyped_defs = true
 no_implicit_reexport = true
+ignore_missing_imports = true
 
 # for strict mypy: (this is the tricky one :-))
 disallow_untyped_defs = true
@@ -44,3 +45,9 @@ disallow_untyped_defs = true
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
+
+[tool.pyright]
+exclude = [ ".venv" ]
+venvPath = "."
+venv = ".venv"
+

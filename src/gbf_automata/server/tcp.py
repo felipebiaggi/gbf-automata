@@ -35,7 +35,7 @@ def service_connection(key, mask):
             data.outb = data.outb[sent:]
 
 
-def create_tcp_server(host: str, port: int):
+def create_tcp_server(host: str, port: int) -> None:
     slock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     slock.bind((host, port))
     slock.listen()
@@ -58,3 +58,7 @@ def create_tcp_server(host: str, port: int):
 
     finally:
         sel.close()
+
+
+if __name__ == "__main__":
+    create_tcp_server(host="127.0.0.1", port=60000)

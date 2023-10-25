@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     @field_validator("content_type", mode="before")
     @classmethod
-    def str_to_enum(cls, value) -> ContentType:
+    def str_to_enum(cls, value: str) -> ContentType:
         for member in ContentType:
             if member.name.lower() == value.lower():
                 return member
