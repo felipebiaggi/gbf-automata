@@ -23,7 +23,7 @@ def service_connection(key: SelectorKey, mask: int) -> None:
 
     sock = key.fileobj
     data = key.data
-    
+
     if mask & EVENT_READ:
         recv_data = sock.recv(1024)  # Should be ready to read
         if recv_data:
@@ -37,6 +37,7 @@ def service_connection(key: SelectorKey, mask: int) -> None:
             logger.info(f"Echoing {data.outb!r} to {data.addr}")
             sent = sock.send(data.outb)  # Should be ready to write
             data.outb = data.outb[sent:]
+
 
 def create_tcp_server(host: str, port: int) -> None:
     slock = socket(AF_INET, SOCK_STREAM)

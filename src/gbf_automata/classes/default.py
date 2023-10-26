@@ -3,6 +3,7 @@ from gbf_automata.schema.image import ImageModel
 from gbf_automata.schema.display import DisplayModel
 from gbf_automata.enums.template_match import TemplateMatch
 
+
 class Default:
     def __init__(
         self,

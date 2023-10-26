@@ -1,32 +1,40 @@
-import time
-
+import functools
 from multiprocessing import Process
-
+from signal import SIGINT, Signals, signal, SIGTERM
+from types import FrameType
+from typing import List
 from gbf_automata.classes.load_state import get_state
-from gbf_automata.enums.state import State
-from gbf_automata.server.websocket import create_websocket_server
-
+from gbf_automata.server.websocket import GbfAutomataServer
+from gbf_automata.util.logger import get_logger
 
 load_state = get_state()
+server = GbfAutomataServer(load_state)
+logger = get_logger(__name__)
+
+
+
+def signal_hander(signal: Signals, frame: FrameType, processes: List):
+    server.shutdown()
+    
+    for process in processes:
+        process.join()
+        process.close()
 
 if __name__ == "__main__":
 
-    server_process = Process(
-        target=create_websocket_server,
-        args=(load_state,)
-    )
+    processes = []  
+
+    processes.append(Process(target=server.run))
+
+    partial_handler = functools.partial(signal_hander, processes=processes)
+    signal(SIGTERM, partial_handler)
+    signal(SIGINT, partial_handler)
+
+    for process in processes:
+        process.start()
+
+    for process in processes:
+        process.join()
 
 
-    server_process.start()
-    server_process.join()
-
-    # server_process.start()
-    #
-    # while True:
-    #     if server_process.is_alive() is False:
-    #         break
-    #     else:
-    #         time.sleep(1.0)
-    #
-    # server_process.terminate()
-
+    logger.info("GBFAutomata finished.")

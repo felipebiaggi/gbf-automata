@@ -6,6 +6,7 @@ from gbf_automata.util.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class LoadState(object):
     def __init__(self) -> None:
         self._state: State = State.NONE
