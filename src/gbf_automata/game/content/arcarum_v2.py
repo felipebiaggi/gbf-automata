@@ -17,55 +17,50 @@ class ArcarumV2:
     def __init__(self, game: GBFGame):
         self.game: GBFGame = game
 
-    def reset_zone(self):
+    def reset_zone(self) -> None:
         back_button = self.game.search_for_element(
             element=data_model.arcarum.sandbox.zones.back_stage
         )
-
-        if back_button.accuracy() < 0.85:
-            raise GBFAutomataError(
-                f"Accuracy Error - Threshold: <{0.85}> - Mensured: <{back_button.accuracy()}> - Element: <Back Stage Button>"
-            )
-
+ 
         pyautogui.moveTo(*back_button.center())
         pyautogui.click()
         self.game.wait()
         pyautogui.click()
 
-    def zone(self, element: str):
+    def zone(self, element: str) -> None:
         zone = self.game.search_for_element(element=element)
-
-        if zone.accuracy() < self.game.accuracy_threshold:
-            raise GBFAutomataError("Arcarum Zone not found!")
-
+   
         pyautogui.moveTo(*zone.center())
 
         pyautogui.click()
 
-        self.game.wait(4.0)
+        self.game.wait()
+    
 
-    def start(self):
+    def select_node(self) -> None:
+        pass
+        
+    def start(self) -> None:
         # SEARCH FOR ARCARUM BANNER
-        self.game.search_for_element_and_scroll(element=data_model.banner.arcarum)
-
-        # CHECK THE ARCARUM TYPE
-        type_arcarum = self.game.search_for_element(
-            element=data_model.arcarum.sandbox.button
+        self.game.search_for_element_and_scroll(
+            element=data_model.banner.arcarum, accuracy_threshold=0.80
         )
 
-        if type_arcarum.accuracy() < self.game.accuracy_threshold:
+        # CHECK THE ARCARUM TYPE
+        try:
+            self.game.search_for_element(
+                element=data_model.arcarum.sandbox.button
+            )
+        except GBFAutomataError:
             arcarum_sandbox = self.game.search_for_element(
                 element=data_model.arcarum.classic.button
             )
-
-            if arcarum_sandbox.accuracy() < self.game.accuracy_threshold:
-                raise GBFAutomataError("Invalid Page")
 
             pyautogui.moveTo(*arcarum_sandbox.center())
 
             pyautogui.click()
 
-            self.game.wait(4.0)
+            self.game.wait()
 
         # SELECT THE ARCARUM ZONE
         if ArcarumV2Zone.ELETIO == settings.arcarum_v2.zone:

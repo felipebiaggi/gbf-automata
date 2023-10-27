@@ -18,15 +18,15 @@ HOST = "127.0.0.1"
 PORT = 65432
 
 
-class GbfAutomataServer:
-    def __init__(self, state: LoadState) -> None:
-        self._state = state
+class GBFAutomataServer:
+    def __init__(self, load_state: LoadState) -> None:
+        self._load_state = load_state
         self._server = self.create_connection()
 
         self.setup_signal()
 
     def create_connection(self) -> websockets.sync.server.WebSocketServer:
-        state_handler = functools.partial(handler, extra_argument=self._state)
+        state_handler = functools.partial(handler, extra_argument=self._load_state)
         return websockets.sync.server.serve(handler=state_handler, host=HOST, port=PORT)
 
     def run(self) -> None:
@@ -36,10 +36,12 @@ class GbfAutomataServer:
     def shutdown(self) -> None:
         logger.info("Socket Shutdown.")
         self._server.socket.shutdown(SHUT_RDWR)
-        
+
         logger.info("Shutdown Close.")
         self._server.shutdown()
 
+        logger.info("Os Exit")
+        sys.exit(0)
 
     def setup_signal(self) -> None:
         partial_handler = functools.partial(signal_handler, server=self)
@@ -50,9 +52,6 @@ def handler(connection: Connection, **kwargs: Any) -> None:
     connection_id = connection.id
     load_state = kwargs["extra_argument"]
 
-    if not isinstance(load_state, LoadState):
-        raise Exception
-
     logger.info(f"Connection open - Client ID: <{connection_id}>")
 
     try:
@@ -60,10 +59,10 @@ def handler(connection: Connection, **kwargs: Any) -> None:
             message
         ) in connection:  # Se a conexão é fechada o iterator levante um exception.
             if message == "none":
-                load_state.state = State.NONE
+                load_state.set_state(State.NONE)
 
             if message == "block":
-                load_state.state = State.BLOCK
+                load_state.set_state(State.BLOCK)
 
     except websockets.ConnectionClosedError as err:
         logger.error(f"Connection error: <{err}>.")
@@ -76,8 +75,7 @@ def handler(connection: Connection, **kwargs: Any) -> None:
 
 
 def signal_handler(
-    signal: Signals, frame: FrameType, server: GbfAutomataServer
+    signal: Signals, frame: FrameType, server: GBFAutomataServer
 ) -> None:
     logger.info(f"Signals: <{signal}> \n FrameType: <{frame}>")
-    logger.info("Child SIGTERM")
     server.shutdown()

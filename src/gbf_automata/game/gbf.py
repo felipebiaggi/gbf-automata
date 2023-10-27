@@ -6,6 +6,8 @@ import numpy as np
 import pyautogui
 from cv2.typing import Point
 from typing import List, Tuple, Optional
+from gbf_automata.classes.load_state import LoadState
+from gbf_automata.enums.state import State
 
 from gbf_automata.util.logger import get_logger
 from gbf_automata.util.settings import settings
@@ -23,22 +25,24 @@ logger = get_logger(__name__)
 
 
 class GBFGame:
-    def __init__(self) -> None:
-        self.accuracy_threshold: float = 0.90
-        self.correction: Point = (0, 0)
-        self.method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED
-        self.content: ContentType = settings.content_type
+    def __init__(self, load_state: LoadState) -> None:
         self.max_attemps: int = 5
         self.area: Optional[GameArea]
+        self.correction: Point = (0, 0)
+        self.content: ContentType = settings.content_type
+        self.method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED
 
         # States
-        self.state_calibration: bool = False
+        self.load_state = load_state
+        self.calibration_state: bool = False
 
     def search_for_element(
         self,
         element: str,
-        method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED,
         correction: Point = (0, 0),
+        error_ignore: bool = False,
+        accuracy_threshold: float = 0.90,
+        method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED,
     ) -> ImageModel:
         if element:
             image = cv.imread(element, cv.IMREAD_UNCHANGED)
@@ -72,27 +76,31 @@ class GBFGame:
                         correction=correction,
                     )
 
+                    if (not error_ignore) & (image_model.accuracy() < accuracy_threshold):
+                        raise GBFAutomataError(
+                            f"Accuracy Error - Threshold: <{accuracy_threshold}> - Mensured: <{image_model.accuracy()}> - Element: <{element}>"
+                        )
+
                     return image_model
 
         raise GBFAutomataError(f"Invalid image path: <{element}>")
 
     def search_for_element_and_scroll(
-        self,
-        element: str,
-    ):
+        self, element: str, accuracy_threshold: float = 0.90
+    ) -> None:
         for _ in range(0, self.max_attemps):
-            image = self.search_for_element(element=element)
+            image = self.search_for_element(element=element, error_ignore=True)
 
-            if image.accuracy() <= self.accuracy_threshold:
+            if image.accuracy() <= accuracy_threshold:
                 pyautogui.scroll(-5)
-                self.wait(0.5)
+                self.wait()
             else:
                 pyautogui.moveTo(*image.center())
                 pyautogui.click()
-                self.wait(4.0)
+                self.wait()
                 break
 
-    def move_to_main_page(self):
+    def move_to_main_page(self) -> None:
         home_image_model = self.search_for_element(
             element=data_model.main.home_bottom,
         )
@@ -101,7 +109,7 @@ class GBFGame:
 
         pyautogui.click()
 
-    def calibrate(self, home: bool = False):
+    def calibrate(self, home: bool = False, accuracy_threshold: float = 0.90) -> None:
         if home:
             image_top = cv.imread(data_model.main.news, cv.IMREAD_UNCHANGED)
         else:
@@ -112,7 +120,7 @@ class GBFGame:
         w_top, h_top = image_top.shape[::-1]
         w_bottom, h_bottom = image_bottom.shape[::-1]
 
-        search: List = []
+        search: List[GameArea] = []
 
         with mss.mss() as sct:
             for monitor in sct.monitors:
@@ -172,63 +180,68 @@ class GBFGame:
         result = max(search, key=lambda game_area: game_area.accuracy())
 
         for name, accuracy in result.accuracy():
-            if accuracy < self.accuracy_threshold:
+            if accuracy < accuracy_threshold:
                 raise GBFAutomataError(
-                    f"Accuracy Error - Threshold: <{self.accuracy_threshold}> - Mensured: <{accuracy}> - Element: <{name}>"
+                    f"Accuracy Error - Threshold: <{accuracy_threshold}> - Mensured: <{accuracy}> - Element: <{name}>"
                 )
 
-        self.state_calibration = True
+        self.calibration_state = True
 
         self.game_area = result
 
-    def wait(self, seconds: float = 2.0):
-        time.sleep(seconds)
+    def wait(self) -> None:
+        while True:
+            if self.load_state.get_state() == State.NONE:
+                break
+            time.sleep(1)
+            logger.info(f"State: <{self.load_state.get_state()}>")
+        time.sleep(0.5)
 
-    def arcarum_v2_node_coordinates(
-        self, arcarum_v2: ArcarumV2Model
-    ) -> Tuple[float, float]:
-        coordinates = arcarum_v2_coordinates[arcarum_v2.zone]["stage"][
-            arcarum_v2.subzone.stage
-        ]["node"][arcarum_v2.subzone.node]
+    # def arcarum_v2_node_coordinates(
+    #     self, arcarum_v2: ArcarumV2Model
+    # ) -> Tuple[float, float]:
+    #     coordinates = arcarum_v2_coordinates[arcarum_v2.zone]["stage"][
+    #         arcarum_v2.subzone.stage
+    #     ]["node"][arcarum_v2.subzone.node]
+    #
+    #     game_area = self.area.correction()  # type: ignore
+    #
+    #     return (coordinates[0] + game_area[0], coordinates[1] + game_area[1])
 
-        game_area = self.area.correction()  # type: ignore
+    # def arcarum_v2_select_stage(self, arcarum_v2: ArcarumV2Model):
+    #     image_back_result = self.search_for_element(element=settings.image_back_stage)
+    #
+    #     image_forward_result = self.search_for_element(
+    #         element=settings.image_forward_stage
+    #     )
+    #
+    #     if (
+    #         image_back_result.accuracy()
+    #         <= self.accuracy_threshold
+    #         <= image_forward_result.accuracy()
+    #     ):
+    #         logger.info("Already at the correct Stage!")
+    #         return
+    #
+    #     if image_back_result.accuracy() >= self.accuracy_threshold:
+    #         pyautogui.moveTo(*image_back_result.center())
+    #         pyautogui.click()
+    #         self.wait(0.5)
+    #         pyautogui.click()
+    #
+    #     for _ in range(1, arcarum_v2.subzone.stage):
+    #         pyautogui.moveTo(*image_forward_result.center())
+    #         pyautogui.click()
+    #         self.wait(0.5)
+    #
+    #     pyautogui.moveTo(*self.arcarum_v2_node_coordinates(arcarum_v2=arcarum_v2))
+    #
+    #     pyautogui.click()
 
-        return (coordinates[0] + game_area[0], coordinates[1] + game_area[1])
-
-    def arcarum_v2_select_stage(self, arcarum_v2: ArcarumV2Model):
-        image_back_result = self.search_for_element(element=settings.image_back_stage)
-
-        image_forward_result = self.search_for_element(
-            element=settings.image_forward_stage
-        )
-
-        if (
-            image_back_result.accuracy()
-            <= self.accuracy_threshold
-            <= image_forward_result.accuracy()
-        ):
-            logger.info("Already at the correct Stage!")
-            return
-
-        if image_back_result.accuracy() >= self.accuracy_threshold:
-            pyautogui.moveTo(*image_back_result.center())
-            pyautogui.click()
-            self.wait(0.5)
-            pyautogui.click()
-
-        for _ in range(1, arcarum_v2.subzone.stage):
-            pyautogui.moveTo(*image_forward_result.center())
-            pyautogui.click()
-            self.wait(0.5)
-
-        pyautogui.moveTo(*self.arcarum_v2_node_coordinates(arcarum_v2=arcarum_v2))
-
-        pyautogui.click()
-
-    def start(self):
+    def run(self) -> None:
         self.move_to_main_page()
 
-        self.wait(seconds=4.0)
+        self.wait()
         self.calibrate(home=True)
 
         if settings.content_type == ContentType.ARCARUM_V2:
