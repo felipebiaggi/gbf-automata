@@ -5,7 +5,7 @@ import cv2 as cv
 import numpy as np
 import pyautogui
 from cv2.typing import Point
-from typing import List, Tuple, Optional
+from typing import List, Optional
 from gbf_automata.classes.load_state import LoadState
 from gbf_automata.enums.state import State
 
@@ -76,7 +76,9 @@ class GBFGame:
                         correction=correction,
                     )
 
-                    if (not error_ignore) & (image_model.accuracy() < accuracy_threshold):
+                    if (not error_ignore) & (
+                        image_model.accuracy() < accuracy_threshold
+                    ):
                         raise GBFAutomataError(
                             f"Accuracy Error - Threshold: <{accuracy_threshold}> - Mensured: <{image_model.accuracy()}> - Element: <{element}>"
                         )

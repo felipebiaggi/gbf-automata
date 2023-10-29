@@ -8,7 +8,8 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    display: str = Field(default=None)
+    host: str = "127.0.0.1"
+    port: int = 65432
     log_level: str = "INFO"
     log_format: str = "[%(asctime)s] [%(levelname)s] [%(thread)s] - %(message)s"
 

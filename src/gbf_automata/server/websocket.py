@@ -9,13 +9,10 @@ from signal import Signals, SIGTERM, signal
 from websockets.sync.connection import Connection
 from gbf_automata.enums.state import State
 from gbf_automata.util.logger import get_logger
+from gbf_automata.util.settings import settings
 from gbf_automata.classes.load_state import LoadState
 
 logger = get_logger(__name__)
-
-
-HOST = "127.0.0.1"
-PORT = 65432
 
 
 class GBFAutomataServer:
@@ -23,11 +20,11 @@ class GBFAutomataServer:
         self._load_state = load_state
         self._server = self.create_connection()
 
-        self.setup_signal()
-
     def create_connection(self) -> websockets.sync.server.WebSocketServer:
-        state_handler = functools.partial(handler, extra_argument=self._load_state)
-        return websockets.sync.server.serve(handler=state_handler, host=HOST, port=PORT)
+        state_handler = functools.partial(handler, load_state=self._load_state)
+        return websockets.sync.server.serve(
+            handler=state_handler, host=settings.host, port=settings.port
+        )
 
     def run(self) -> None:
         self._server.serve_forever()
@@ -48,9 +45,9 @@ class GBFAutomataServer:
         signal(SIGTERM, partial_handler)
 
 
-def handler(connection: Connection, **kwargs: Any) -> None:
+def handler(connection: Connection, load_state: LoadState) -> None:
     connection_id = connection.id
-    load_state = kwargs["extra_argument"]
+    # load_state = kwargs["extra_argument"]
 
     logger.info(f"Connection open - Client ID: <{connection_id}>")
 

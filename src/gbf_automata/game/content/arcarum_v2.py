@@ -17,29 +17,31 @@ class ArcarumV2:
     def __init__(self, game: GBFGame):
         self.game: GBFGame = game
 
-    def reset_zone(self) -> None:
+    def reset_subzone(self) -> None:
         back_button = self.game.search_for_element(
             element=data_model.arcarum.sandbox.zones.back_stage
         )
- 
+
         pyautogui.moveTo(*back_button.center())
         pyautogui.click()
         self.game.wait()
         pyautogui.click()
 
+    def select_subzone(self) -> None:
+        pass
+
     def zone(self, element: str) -> None:
         zone = self.game.search_for_element(element=element)
-   
+
         pyautogui.moveTo(*zone.center())
 
         pyautogui.click()
 
         self.game.wait()
-    
 
     def select_node(self) -> None:
         pass
-        
+
     def start(self) -> None:
         # SEARCH FOR ARCARUM BANNER
         self.game.search_for_element_and_scroll(
@@ -48,9 +50,7 @@ class ArcarumV2:
 
         # CHECK THE ARCARUM TYPE
         try:
-            self.game.search_for_element(
-                element=data_model.arcarum.sandbox.button
-            )
+            self.game.search_for_element(element=data_model.arcarum.sandbox.button)
         except GBFAutomataError:
             arcarum_sandbox = self.game.search_for_element(
                 element=data_model.arcarum.classic.button
@@ -66,4 +66,4 @@ class ArcarumV2:
         if ArcarumV2Zone.ELETIO == settings.arcarum_v2.zone:
             self.zone(element=data_model.arcarum.sandbox.zones.eletio.banner)
 
-            self.reset_zone()
+            self.reset_subzone()
