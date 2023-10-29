@@ -210,36 +210,6 @@ class GBFGame:
     #
     #     return (coordinates[0] + game_area[0], coordinates[1] + game_area[1])
 
-    # def arcarum_v2_select_stage(self, arcarum_v2: ArcarumV2Model):
-    #     image_back_result = self.search_for_element(element=settings.image_back_stage)
-    #
-    #     image_forward_result = self.search_for_element(
-    #         element=settings.image_forward_stage
-    #     )
-    #
-    #     if (
-    #         image_back_result.accuracy()
-    #         <= self.accuracy_threshold
-    #         <= image_forward_result.accuracy()
-    #     ):
-    #         logger.info("Already at the correct Stage!")
-    #         return
-    #
-    #     if image_back_result.accuracy() >= self.accuracy_threshold:
-    #         pyautogui.moveTo(*image_back_result.center())
-    #         pyautogui.click()
-    #         self.wait(0.5)
-    #         pyautogui.click()
-    #
-    #     for _ in range(1, arcarum_v2.subzone.stage):
-    #         pyautogui.moveTo(*image_forward_result.center())
-    #         pyautogui.click()
-    #         self.wait(0.5)
-    #
-    #     pyautogui.moveTo(*self.arcarum_v2_node_coordinates(arcarum_v2=arcarum_v2))
-    #
-    #     pyautogui.click()
-
     def run(self) -> None:
         self.move_to_main_page()
 
@@ -249,4 +219,4 @@ class GBFGame:
         if settings.content_type == ContentType.ARCARUM_V2:
             arcarum_v2 = ArcarumV2(game=self)
 
-            arcarum_v2.start()
+            arcarum_v2.start()    

@@ -2,7 +2,6 @@ import sys
 import functools
 import websockets.sync.server
 
-from typing import Any
 from types import FrameType
 from socket import SHUT_RDWR
 from signal import Signals, SIGTERM, signal
@@ -46,10 +45,7 @@ class GBFAutomataServer:
 
 
 def handler(connection: Connection, load_state: LoadState) -> None:
-    connection_id = connection.id
-    # load_state = kwargs["extra_argument"]
-
-    logger.info(f"Connection open - Client ID: <{connection_id}>")
+    logger.info(f"Connection open - Client ID: <{connection.id}>")
 
     try:
         for (
@@ -68,7 +64,7 @@ def handler(connection: Connection, load_state: LoadState) -> None:
     ) as err:  # Caso a exception não sejá tratada, capturamos o que chegar aqui.
         logger.error(f"Genetic error: <{err}>.")
 
-    logger.info(f"Connection close - Client ID: <{connection_id}>.")
+    logger.info(f"Connection close - Client ID: <{connection.id}>.")
 
 
 def signal_handler(

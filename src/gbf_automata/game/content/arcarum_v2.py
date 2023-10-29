@@ -1,12 +1,16 @@
 from __future__ import annotations
 import typing
-
 import pyautogui
+
 from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
 
 from gbf_automata.util.settings import settings
 from gbf_automata.schema.data import data_model
+
+from gbf_automata.util.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 if typing.TYPE_CHECKING:
@@ -27,8 +31,20 @@ class ArcarumV2:
         self.game.wait()
         pyautogui.click()
 
-    def select_subzone(self) -> None:
-        pass
+    def select_subzone(self, subzone: int) -> None:
+        
+        if subzone == 1:
+            return
+
+        image_forward = self.game.search_for_element(
+            element=data_model.arcarum.sandbox.zones.forward_stage
+        )
+
+        
+        for _ in range(1, subzone):
+            pyautogui.moveTo(*image_forward.center())
+            pyautogui.click()
+            self.game.wait()
 
     def zone(self, element: str) -> None:
         zone = self.game.search_for_element(element=element)
@@ -67,3 +83,14 @@ class ArcarumV2:
             self.zone(element=data_model.arcarum.sandbox.zones.eletio.banner)
 
             self.reset_subzone()
+
+            self.select_subzone(
+                subzone=settings.arcarum_v2.subzone
+            )
+
+            self.select_node()
+
+if __name__ == "__main__":
+
+    stage = settings.arcarum_v2
+    logger.info(stage)
