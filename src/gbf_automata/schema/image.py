@@ -1,6 +1,8 @@
+import numpy as np
 from typing import Tuple
 from cv2.typing import Point
 from pydantic import BaseModel
+from gbf_automata.util.rng import rng
 from gbf_automata.enums.template_match import TemplateMatch
 
 
@@ -47,12 +49,13 @@ class ImageModel(BaseModel):
             max_loc = (max_loc[0] + self.correction[0], max_loc[1] + self.correction[1])
 
         if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
+            
             return (
-                min_loc[0] + (self.image_width / 2),
-                min_loc[1] + (self.image_height / 2),
+                np.trunc(min_loc[0] + (self.image_width * rng.random())),
+                np.trunc(min_loc[1] + (self.image_height * rng.random()))
             )
 
         return (
-            max_loc[0] + (self.image_width / 2),
-            max_loc[1] + (self.image_height / 2),
-        )
+            np.trunc(max_loc[0] + (self.image_width * rng.random())),
+            np.trunc(max_loc[1] + (self.image_height * rng.random()))
+        ) 
