@@ -198,18 +198,7 @@ class GBFGame:
             time.sleep(1)
             logger.info(f"State: <{self.load_state.get_state()}>")
         time.sleep(0.5)
-
-    # def arcarum_v2_node_coordinates(
-    #     self, arcarum_v2: ArcarumV2Model
-    # ) -> Tuple[float, float]:
-    #     coordinates = arcarum_v2_coordinates[arcarum_v2.zone]["stage"][
-    #         arcarum_v2.subzone.stage
-    #     ]["node"][arcarum_v2.subzone.node]
-    #
-    #     game_area = self.area.correction()  # type: ignore
-    #
-    #     return (coordinates[0] + game_area[0], coordinates[1] + game_area[1])
-
+        
     def run(self) -> None:
         self.move_to_main_page()
 
