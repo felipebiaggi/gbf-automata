@@ -198,7 +198,7 @@ class GBFGame:
             time.sleep(1)
             logger.info(f"State: <{self.load_state.get_state()}>")
         time.sleep(0.5)
-        
+
     def run(self) -> None:
         self.move_to_main_page()
 
@@ -208,4 +208,4 @@ class GBFGame:
         if settings.content_type == ContentType.ARCARUM_V2:
             arcarum_v2 = ArcarumV2(game=self)
 
-            arcarum_v2.start()    
+            arcarum_v2.start()

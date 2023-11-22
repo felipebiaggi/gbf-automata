@@ -49,13 +49,12 @@ class ImageModel(BaseModel):
             max_loc = (max_loc[0] + self.correction[0], max_loc[1] + self.correction[1])
 
         if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
-            
             return (
                 np.trunc(min_loc[0] + (self.image_width * rng.random())),
-                np.trunc(min_loc[1] + (self.image_height * rng.random()))
+                np.trunc(min_loc[1] + (self.image_height * rng.random())),
             )
 
         return (
             np.trunc(max_loc[0] + (self.image_width * rng.random())),
-            np.trunc(max_loc[1] + (self.image_height * rng.random()))
-        ) 
+            np.trunc(max_loc[1] + (self.image_height * rng.random())),
+        )

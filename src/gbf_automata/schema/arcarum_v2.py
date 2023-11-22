@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 
+
 class Party(BaseModel):
     deck: int = Field(default=None, ge=1, le=7)
     group: int = Field(default=None, ge=1, le=6)

@@ -7,6 +7,7 @@ from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
 
 from gbf_automata.util.settings import settings
 from gbf_automata.schema.data import data_model
+from gbf_automata.schema.coordinates import coordinates
 
 from gbf_automata.util.logger import get_logger
 
@@ -32,7 +33,6 @@ class ArcarumV2:
         pyautogui.click()
 
     def select_subzone(self, subzone: int) -> None:
-        
         if subzone == 1:
             return
 
@@ -40,7 +40,6 @@ class ArcarumV2:
             element=data_model.arcarum.sandbox.zones.forward_stage
         )
 
-        
         for _ in range(1, subzone):
             pyautogui.moveTo(*image_forward.center())
             pyautogui.click()
@@ -55,8 +54,18 @@ class ArcarumV2:
 
         self.game.wait()
 
-    def select_node(self) -> None:
-        pass
+    def select_node(self, stage, subzone, node) -> None:
+        
+        stage_model = list(
+            filter(
+                lambda stage_model: stage_model.stage == stage 
+                and stage_model.subzone == subzone
+                and stage_model.node == node,
+                coordinates.stages
+            )
+        ).pop()
+
+        print(stage_model)
 
     def start(self) -> None:
         # SEARCH FOR ARCARUM BANNER
@@ -84,11 +93,13 @@ class ArcarumV2:
 
             self.reset_subzone()
 
-            self.select_subzone(
-                subzone=settings.arcarum_v2.subzone
-            )
+            self.select_subzone(subzone=settings.arcarum_v2.subzone)
 
-            self.select_node()
+            self.select_node(
+                stage=settings.arcarum_v2.zone,
+                subzone=settings.arcarum_v2.subzone,
+                node=settings.arcarum_v2.node
+            )
 
     # def arcarum_v2_node_coordinates(
     #     self, arcarum_v2: ArcarumV2Model
@@ -103,6 +114,20 @@ class ArcarumV2:
 
 
 if __name__ == "__main__":
+    stage = ArcarumV2Zone.ELETIO
+    subzone = 1
     node = 1
 
-    
+
+    result = list(
+        filter(
+            lambda stage_model: stage_model.stage == stage
+            and stage_model.subzone == subzone
+            and stage_model.node == node,
+            coordinates.stages,
+        )
+    )
+
+    result = result.pop()
+
+    print(result)

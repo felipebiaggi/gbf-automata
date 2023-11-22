@@ -1,32 +1,35 @@
+from functools import lru_cache
 import json
-from typing import List, Any, Dict
-from pydantic import Field, BaseModel
+from typing import List
+from pydantic import BaseModel
 
-class NodeModel(BaseModel):
-    node: Dict[Any, Any]
+from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 
-class SubStageModel(BaseModel):
-    one: NodeModel = Field(..., alias="1")
-    # two: NodeModel = Field(..., alias="2")
-    # three: NodeModel = Field(..., alias="3")
+class CoordinateNodeModel(BaseModel):
+    start: List[int]
+    end: List[int]
 
 
 class StageModel(BaseModel):
-    substage: SubStageModel
+    stage: ArcarumV2Zone
+    subzone: int
+    node: int
+    coordinate: CoordinateNodeModel
 
 
 class CoordinateModel(BaseModel):
-    eletio: StageModel
-    
+    stages: List[StageModel]
+
     class Config:
         extra = "ignore"
 
 
-if __name__ == "__main__":
-    with open("src/gbf_automata/data/arcarum_v2/test.json") as file:
+@lru_cache()
+def get_coordinates() -> CoordinateModel:
+    with open("src/gbf_automata/data/arcarum_v2/coordinates.json") as file:
         file_dict = json.load(file)
 
-        model = CoordinateModel.model_validate(file_dict)
+        return CoordinateModel.model_validate(file_dict)
 
-        print(model.eletio.substage.one)
 
+coordinates = get_coordinates()
