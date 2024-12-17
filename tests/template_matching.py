@@ -1,8 +1,7 @@
 import argparse
 import cv2 as cv
 from pathvalidate.argparse import sanitize_filepath_arg
-from matplotlib import pyplot as plt
-from gbf_automata.schema.image_area import ImageModel
+from gbf_automata.schema.image import ImageModel
 from gbf_automata.enums.template_match import TemplateMatch
 
 parse = argparse.ArgumentParser(
@@ -21,6 +20,8 @@ if __name__ == "__main__":
 
     image = cv.imread(args.image, cv.IMREAD_UNCHANGED)
 
+    image_souce = template_rgb.copy()
+
     w, h = image.shape[::-1]
 
     method = TemplateMatch.TM_CCORR_NORMED
@@ -37,13 +38,11 @@ if __name__ == "__main__":
         max_val=max_val,
         min_loc=min_loc,
         max_loc=max_loc,
-        correction=min_loc,
     )
 
     top_left, bottom_right = image_area.plot_area()
 
-    cv.rectangle(template_rgb, top_left, bottom_right, (0, 0, 255), 4)
-
-    plt.imshow(cv.cvtColor(template_rgb, cv.COLOR_BGR2RGB))
-
-    plt.show()
+    cv.namedWindow("Souce", cv.WINDOW_KEEPRATIO)
+    cv.rectangle(image_souce, top_left, bottom_right, (0, 0, 255), 4)
+    cv.imshow("Souce", image_souce)
+    cv.waitKey(0)

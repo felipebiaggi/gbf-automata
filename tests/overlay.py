@@ -4,7 +4,7 @@ import numpy as np
 from typing import List, Tuple
 from gbf_automata.classes import default
 from gbf_automata.enums.template_match import TemplateMatch
-from gbf_automata.schema.image_schema import ImageModel
+from gbf_automata.schema.image import ImageModel
 from gbf_automata.classes.default import Default
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
 from gbf_automata.util.settings import settings
