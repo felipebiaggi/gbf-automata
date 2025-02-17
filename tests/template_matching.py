@@ -1,7 +1,7 @@
 import cv2 as cv
 from pathlib import Path
-from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.models.image import ImageModel
+from gbf_automata.enums.template_match import TemplateMatch
 
 resource_dir = Path(__file__).parent.parent / "resources"
 
@@ -19,18 +19,18 @@ if __name__ == "__main__":
 
     target_source = target_rgb.copy()
 
-    w, h = template.shape[::-1]
+    template_h, template_w = template.shape
 
     method = TemplateMatch.TM_CCORR_NORMED
 
     res = cv.matchTemplate(target_gray, template, method)
-
+    
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
 
     image_area = ImageModel(
         method=method,
-        image_width=w,
-        image_height=h,
+        template_width=template_w,
+        template_height=template_h,
         min_val=min_val,
         max_val=max_val,
         min_loc=min_loc,
@@ -39,7 +39,13 @@ if __name__ == "__main__":
 
     top_left, bottom_right = image_area.plot_area()
 
-    cv.namedWindow("Souce", cv.WINDOW_KEEPRATIO)
+    cv.namedWindow("Target", cv.WINDOW_KEEPRATIO)
     cv.rectangle(target_source, top_left, bottom_right, (0, 0, 255), 4)
-    cv.imshow("Souce", target_source)
-    cv.waitKey(0)
+    cv.imshow("Target", target_source)
+   
+    while cv.getWindowProperty("Target", cv.WND_PROP_VISIBLE) >= 1:
+        key = cv.waitKey(1000)
+        if key == 27: 
+            break
+
+    cv.destroyAllWindows()
