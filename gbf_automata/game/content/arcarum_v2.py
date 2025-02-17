@@ -55,7 +55,6 @@ class ArcarumV2:
         self.game.wait()
 
     def select_node(self, stage, subzone, node) -> None:
-
         stage_model = list(
             filter(
                 lambda stage_model: stage_model.stage == stage

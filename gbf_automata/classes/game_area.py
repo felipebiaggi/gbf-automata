@@ -50,15 +50,24 @@ class GameArea:
             "top": self.aspect_ratio.top + top_loc[1],
             "left": self.aspect_ratio.left + top_loc[0],
             "width": self.aspect_ratio.width
-            - (self.aspect_ratio.width - (bottom_loc[0] + self.bottom_right.template_width))
+            - (
+                self.aspect_ratio.width
+                - (bottom_loc[0] + self.bottom_right.template_width)
+            )
             - top_loc[0],
             "height": self.aspect_ratio.height
-            - (self.aspect_ratio.height - (bottom_loc[1] + self.bottom_right.template_height))
+            - (
+                self.aspect_ratio.height
+                - (bottom_loc[1] + self.bottom_right.template_height)
+            )
             - top_loc[1],
         }
 
     def accuracy(self) -> List[Tuple[str, float]]:
-        return [("top", self.top_left.accuracy()), ("bottom", self.bottom_right.accuracy())]
+        return [
+            ("top", self.top_left.accuracy()),
+            ("bottom", self.bottom_right.accuracy()),
+        ]
 
     def display_area(self) -> Dict[str, Any]:
         return {

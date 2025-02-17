@@ -2,7 +2,6 @@ import mss
 import cv2 as cv
 import numpy as np
 from typing import List, Tuple
-from gbf_automata.classes import default
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.schema.image import ImageModel
 from gbf_automata.classes.default import Default

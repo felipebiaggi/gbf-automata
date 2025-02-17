@@ -10,7 +10,6 @@ target_path = resource_dir / "target_image.png"
 
 
 if __name__ == "__main__":
-
     target_rgb = cv.imread(target_path.as_posix())
 
     target_gray = cv.cvtColor(target_rgb, cv.COLOR_BGR2GRAY)
@@ -24,7 +23,7 @@ if __name__ == "__main__":
     method = TemplateMatch.TM_CCORR_NORMED
 
     res = cv.matchTemplate(target_gray, template, method)
-    
+
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
 
     image_area = ImageModel(
@@ -42,10 +41,10 @@ if __name__ == "__main__":
     cv.namedWindow("Target", cv.WINDOW_KEEPRATIO)
     cv.rectangle(target_source, top_left, bottom_right, (0, 0, 255), 4)
     cv.imshow("Target", target_source)
-   
+
     while cv.getWindowProperty("Target", cv.WND_PROP_VISIBLE) >= 1:
         key = cv.waitKey(1000)
-        if key == 27: 
+        if key == 27:
             break
 
     cv.destroyAllWindows()

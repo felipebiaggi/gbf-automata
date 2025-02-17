@@ -16,7 +16,6 @@ from gbf_automata.enums.content_type import ContentType
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.schema.data import data_model
 from gbf_automata.schema.image import ImageModel
-from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
 from gbf_automata.game.content.arcarum_v2 import ArcarumV2
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
 
