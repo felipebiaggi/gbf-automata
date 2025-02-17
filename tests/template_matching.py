@@ -1,32 +1,29 @@
-import argparse
 import cv2 as cv
-from pathvalidate.argparse import sanitize_filepath_arg
-from gbf_automata.schema.image import ImageModel
+from pathlib import Path
 from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.models.image import ImageModel
 
-parse = argparse.ArgumentParser(
-    prog="Template matching",
-    description="Find objects in an image using template matching method",
-)
-parse.add_argument("-i", "--image", type=sanitize_filepath_arg)
-parse.add_argument("-t", "--template", type=sanitize_filepath_arg)
+resource_dir = Path(__file__).parent.parent / "resources"
+
+template_path = resource_dir / "template_image_gray.png"
+target_path = resource_dir / "target_image.png"
+
 
 if __name__ == "__main__":
-    args = parse.parse_args()
 
-    template_rgb = cv.imread(args.template)
+    target_rgb = cv.imread(target_path.as_posix())
 
-    template_gray = cv.cvtColor(template_rgb, cv.COLOR_BGR2GRAY)
+    target_gray = cv.cvtColor(target_rgb, cv.COLOR_BGR2GRAY)
 
-    image = cv.imread(args.image, cv.IMREAD_UNCHANGED)
+    template = cv.imread(template_path.as_posix(), cv.IMREAD_UNCHANGED)
 
-    image_souce = template_rgb.copy()
+    target_source = target_rgb.copy()
 
-    w, h = image.shape[::-1]
+    w, h = template.shape[::-1]
 
     method = TemplateMatch.TM_CCORR_NORMED
 
-    res = cv.matchTemplate(template_gray, image, method)
+    res = cv.matchTemplate(target_gray, template, method)
 
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
 
@@ -43,6 +40,6 @@ if __name__ == "__main__":
     top_left, bottom_right = image_area.plot_area()
 
     cv.namedWindow("Souce", cv.WINDOW_KEEPRATIO)
-    cv.rectangle(image_souce, top_left, bottom_right, (0, 0, 255), 4)
-    cv.imshow("Souce", image_souce)
+    cv.rectangle(target_source, top_left, bottom_right, (0, 0, 255), 4)
+    cv.imshow("Souce", target_source)
     cv.waitKey(0)

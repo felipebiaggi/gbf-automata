@@ -55,13 +55,13 @@ class ArcarumV2:
         self.game.wait()
 
     def select_node(self, stage, subzone, node) -> None:
-        
+
         stage_model = list(
             filter(
-                lambda stage_model: stage_model.stage == stage 
+                lambda stage_model: stage_model.stage == stage
                 and stage_model.subzone == subzone
                 and stage_model.node == node,
-                coordinates.stages
+                coordinates.stages,
             )
         ).pop()
 
@@ -98,7 +98,7 @@ class ArcarumV2:
             self.select_node(
                 stage=settings.arcarum_v2.zone,
                 subzone=settings.arcarum_v2.subzone,
-                node=settings.arcarum_v2.node
+                node=settings.arcarum_v2.node,
             )
 
     # def arcarum_v2_node_coordinates(
@@ -117,7 +117,6 @@ if __name__ == "__main__":
     stage = ArcarumV2Zone.ELETIO
     subzone = 1
     node = 1
-
 
     result = list(
         filter(

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone
 
+
 class CoordinateNodeModel(BaseModel):
     start: List[int]
     end: List[int]
