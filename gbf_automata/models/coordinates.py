@@ -1,6 +1,7 @@
-from functools import lru_cache
 import json
+from functools import lru_cache
 from typing import List
+
 from pydantic import BaseModel
 
 from gbf_automata.enums.arcarumv2_zone import ArcarumV2Zone

@@ -14,35 +14,35 @@ load_state = get_state()
 logger = get_logger(__name__)
 
 
-def signal_hander(
-    signal: Signals, frame: FrameType, server_process: BaseProcess
-) -> None:
-    logger.debug(f"Signal: <{signal}>  - Frame: <{frame}>")
-    server.shutdown()
-    server_process.terminate()
+# def signal_hander(
+#     signal: Signals, frame: FrameType, server_process: BaseProcess
+# ) -> None:
+#     logger.debug(f"Signal: <{signal}>  - Frame: <{frame}>")
+#     server.shutdown()
+#     server_process.terminate()
 
 
 if __name__ == "__main__":
-    BaseManager.register("LoadState", LoadState)
-    manager = BaseManager()
-    manager.start()
-    load_state_manager = manager.LoadState()  # type: ignore
-
-    game = GBFGame(load_state_manager)
-    server = GBFAutomataServer(load_state_manager)
-
-    server_process = Process(target=server.run)
-
-    game_process = Process(target=game.run)
-
-    partial_handler = functools.partial(signal_hander, server_process=server_process)
-    signal(SIGTERM, partial_handler)
-    signal(SIGINT, partial_handler)
-
-    game_process.start()
-    server_process.start()
-
-    game_process.join()
-    server_process.join()
-
-    logger.info("GBFAutomata finished.")
+    # # BaseManager.register("LoadState", LoadState)
+    # manager = BaseManager()
+    # manager.start()
+    # load_state_manager = manager.LoadState()  # type: ignore
+    #
+    # game = GBFGame(load_state_manager)
+    # server = GBFAutomataServer(load_state_manager)
+    #
+    # server_process = Process(target=server.run)
+    #
+    # game_process = Process(target=game.run)
+    #
+    # partial_handler = functools.partial(signal_hander, server_process=server_process)
+    # signal(SIGTERM, partial_handler)
+    # signal(SIGINT, partial_handler)
+    #
+    # game_process.start()
+    # server_process.start()
+    #
+    # game_process.join()
+    # server_process.join()
+    #
+    # logger.info("GBFAutomata finished.")

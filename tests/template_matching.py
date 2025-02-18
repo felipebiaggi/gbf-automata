@@ -1,7 +1,9 @@
-import cv2 as cv
 from pathlib import Path
-from gbf_automata.models.image import ImageModel
+
+import cv2 as cv
+
 from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.models.image import ImageModel
 
 resource_dir = Path(__file__).parent.parent / "resources"
 
