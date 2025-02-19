@@ -22,7 +22,6 @@ function disconnect() {
   webSocket.close();
 }
 
-
 function keepAlive() {
   const keepAliveIntervalId = setInterval(
     () => {
