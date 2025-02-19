@@ -1,21 +1,32 @@
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 from cv2.typing import Point
-from pydantic import BaseModel
-from gbf_automata.util.rng import rng
+
 from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.util.rng import rng
 
 
-class ImageModel(BaseModel):
-    method: TemplateMatch
-    template_width: int
-    template_height: int
-    min_val: float
-    max_val: float
-    min_loc: Point
-    max_loc: Point
-
-    correction: Point = (0, 0)
+class ImageModel:
+    def __init__(
+        self,
+        method: TemplateMatch,
+        template_width: int,
+        template_height: int,
+        min_val: float,
+        max_val: float,
+        min_loc: Point,
+        max_loc: Point,
+        correction: Point = (0, 0),
+    ):
+        self.method: TemplateMatch = method
+        self.template_width: int = template_width
+        self.template_height: int = template_height
+        self.min_val: float = min_val
+        self.max_val: float = max_val
+        self.min_loc: Point = min_loc
+        self.max_loc: Point = max_loc
+        self.correction: Point = correction
 
     def __str__(self):
         return (

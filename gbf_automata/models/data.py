@@ -1,6 +1,7 @@
 import json
-from pydantic import BaseModel
 from functools import lru_cache
+
+from pydantic import BaseModel
 
 
 class MainModel(BaseModel):
@@ -88,7 +89,7 @@ class DataModel(BaseModel):
 
 @lru_cache()
 def get_data() -> DataModel:
-    with open("src/gbf_automata/data/images.json") as file:
+    with open("gbf_automata/data/images.json") as file:
         file_dict = json.load(file)  # dict
 
         return DataModel.model_validate(file_dict)
