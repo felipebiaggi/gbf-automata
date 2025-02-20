@@ -1,45 +1,73 @@
 import asyncio
+import multiprocessing
 
 import websockets
 
+from gbf_automata.models.render_manager import (
+    RenderStatus,
+    RenderStatusManager,
+)
+
 
 class GBFAutomataServer:
-    def __init__(self, send_queue, receive_queue) -> None:
-        self.send_queue = send_queue
-        self.receive_queue = receive_queue
+    def __init__(
+        self,
+        send_queue: multiprocessing.Queue,
+        receive_queue: multiprocessing.Queue,
+        render_status_manager: RenderStatusManager,
+    ) -> None:
+        self.send_queue: multiprocessing.Queue = send_queue
+        self.receive_queue: multiprocessing.Queue = receive_queue
+        self.render_status_manager: RenderStatusManager = render_status_manager
         self.server = None
         self.clients = set()
         self.running = True
+        self.stop_event = asyncio.Event()
 
     async def handler(self, websocket, path):
-        """Gerencia conexões WebSocket"""
         client_ip, client_port = websocket.remote_address
         self.clients.add(websocket)
-
-        self.send_queue.put(f"Client {client_ip}:{client_port} connected")
-
+        print(f"[+] New client connected: {client_ip}:{client_port}")
         try:
             async for message in websocket:
-                self.send_queue.put(
-                    f"ClientMessage: {message}"
-                )  # Envia mensagem ao processo pesado
+                if message == "none":
+                    self.render_status_manager.set_status(RenderStatus.RENDERED)
+
+                if message == "block":
+                    self.render_status_manager.set_status(RenderStatus.PENDING)
+
+                self.send_queue.put(f"ClientMessage: {message}")
         except websockets.exceptions.ConnectionClosed:
             pass
         finally:
-            print(f"❌ Client disconnected: {client_ip}:{client_port}")
-            self.clients.remove(websocket)  # Remove cliente da lista
+            print(f"[-] Client disconnected: {client_ip}:{client_port}")
+            if websocket in self.clients:
+                self.clients.remove(websocket)
 
     async def start_server(self):
-        self.server = await websockets.serve(self.handler, "127.0.0.1", 12666)
-        print("🚀 WebSocket Server started on ws://127.0.0.1:12666")
+        self.server = await websockets.serve(self.handler, "127.0.0.1", 12000)
+        print("[SERVER] WebSocket Server started on ws://127.0.0.1:12000")
 
     async def process_incoming_messages(self):
-        """Escuta mensagens do processo pesado e as envia para os clientes"""
-        while True:
-            message = self.receive_queue.get()  # Bloqueia até receber uma mensagem
-            print(f"⚙️ Heavy CPU process sent: {message}")
+        while not self.stop_event.is_set():
+            message = await asyncio.to_thread(self.receive_queue.get)
 
-            # Envia mensagem para todos os clientes conectados
+            print(f"FSM Message {message}")
+
+            if message == "STOP":
+                print("[!] Stop event detected, shutting down WebSocket Server...")
+                self.stop_event.set()
+
+                for client in self.clients:
+                    await client.close()
+
+                self.clients.clear()
+
+                if self.server:
+                    self.server.close()
+                    await self.server.wait_closed()
+                break
+
             if self.clients:
                 await asyncio.gather(*[client.send(message) for client in self.clients])
 
@@ -47,18 +75,16 @@ class GBFAutomataServer:
         await self.start_server()
 
         try:
-            await asyncio.Future()
+            await asyncio.gather(
+                self.stop_event.wait(), self.process_incoming_messages()
+            )
 
-            # await asyncio.gather(
-            #     self.process_incoming_messages(),
-            #     asyncio.Future(),  # Mantém o servidor rodando
-            # )
         except asyncio.CancelledError:
             pass
         except KeyboardInterrupt:
-            print("🔴 Shutting down server...")
+            print("[!] Shutting down server...")
         finally:
             if self.server:
                 self.server.close()
                 await self.server.wait_closed()
-                print("🛑 WebSocket Server closed.")
+                print("[X] WebSocket Server closed.")

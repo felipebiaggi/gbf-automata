@@ -1,7 +1,7 @@
 let webSocket = null;
 
 function connect() {
-  webSocket = new WebSocket("ws://localhost:65432");
+  webSocket = new WebSocket("ws://localhost:12000");
 
   webSocket.onopen = () => {
     console.log("Connection Open.");
@@ -11,6 +11,13 @@ function connect() {
   webSocket.onclose = () => {
     console.log("Connection Closed.");
     webSocket = null;
+  };
+
+  webSocket.onmessage = (event) => {
+    console.log(`websocket received message: ${event.data}`);
+    if (event.data === "arcarum") {
+      chrome.tabs.update({ url: "https://game.granbluefantasy.jp/#replicard" });
+    }
   };
 }
 
@@ -32,7 +39,7 @@ function keepAlive() {
       }
     },
     // Set the interval to 20 seconds to prevent the service worker from becoming inactive.
-    20 * 1000,
+    5 * 1000,
   );
 }
 

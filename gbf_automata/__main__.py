@@ -1,28 +1,37 @@
 import asyncio
 import multiprocessing
 
+from gbf_automata.models.render_manager import (
+    RenderManager,
+    RenderStatusManager,
+)
 from gbf_automata.server.gbf_websocket import GBFAutomataServer
+from gbf_automata.services.fsm import StateMachine
 
 
-def run_fsm(send_queue, receive_queue):
-    """Simula uma tarefa CPU-bound rodando separada do event loop"""
-
-    while True:
-        try:
-            message = send_queue.get()
-            print(f"  Finite State Machine message recv: <{message}>")
-        except KeyboardInterrupt:
-            print("  Finite State Machine closed")
-            break
+def run_fsm(
+    send_queue: multiprocessing.Queue,
+    receive_queue: multiprocessing.Queue,
+    render_status_manager: RenderStatusManager,
+):
+    fsm = StateMachine(send_queue, receive_queue, render_status_manager)
+    fsm.run()
 
 
 def main():
-    send_queue = multiprocessing.Queue()  # Para enviar mensagens ao processo pesado
-    receive_queue = multiprocessing.Queue()  # Para receber mensagens do processo pesado
+    send_queue = multiprocessing.Queue()
+    receive_queue = multiprocessing.Queue()
 
-    server = GBFAutomataServer(send_queue, receive_queue)
+    manager = RenderManager()
+    manager.start()
 
-    process = multiprocessing.Process(target=run_fsm, args=(send_queue, receive_queue))
+    render_status_manager = manager.RenderStatusManager()
+
+    server = GBFAutomataServer(send_queue, receive_queue, render_status_manager)
+
+    process = multiprocessing.Process(
+        target=run_fsm, args=(send_queue, receive_queue, render_status_manager)
+    )
     process.start()
 
     try:
@@ -36,14 +45,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# if __name__ == "__main__":
-#     BaseManager.register("LoadState", LoadState)
-#     manager = BaseManager()
-#     manager.start()
-#     load_state_manager = manager.LoadState()  # type: ignore
-#
-#     server = GBFAutomataServer(load_state_manager)
-#     server_process = Process(target=server.run)
-#
-#     server = GBFAutomataServer(load_state_manager)

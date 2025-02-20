@@ -3,7 +3,7 @@
   "name": "Granblue Fantasy: Request Analyzer",
   "version": "1.0",
   "background": {
-    "service_worker": "worker.bundle.js"
+    "service_worker": "worker.bundle.js",
     "type": "module"
   },
   "content_scripts": [

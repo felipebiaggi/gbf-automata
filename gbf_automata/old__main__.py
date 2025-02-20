@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 
 if __name__ == "__main__":
-    # # BaseManager.register("LoadState", LoadState)
+    # BaseManager.register("LoadState", LoadState)
     # manager = BaseManager()
     # manager.start()
     # load_state_manager = manager.LoadState()  # type: ignore
