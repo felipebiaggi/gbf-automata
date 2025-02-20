@@ -1,0 +1,1 @@
+(()=>{function e(e){chrome.runtime.sendMessage({message:e})}var t=document.querySelector(".wrapper").querySelector(".contents");new MutationObserver((function(n){n.forEach((function(){"display: none;"===t.style.cssText&&e("block"),"display: block;"===t.style.cssText&&e("none")}))})).observe(t,{attributes:!0,attributeOldValue:!0})})();

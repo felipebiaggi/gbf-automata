@@ -10,7 +10,6 @@ env/
 *.venv/
 
 # Dependencias
-dist/
 build/
 *.egg-info/
 .idea/
