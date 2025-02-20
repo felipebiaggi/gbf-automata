@@ -93,6 +93,3 @@ def get_data() -> DataModel:
         file_dict = json.load(file)  # dict
 
         return DataModel.model_validate(file_dict)
-
-
-data_model = get_data()

@@ -1,0 +1,55 @@
+import cv2 as cv
+import mss
+import numpy as np
+import pyautogui
+
+from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
+from gbf_automata.models.image import ImageModel
+
+
+def scroll(
+    element: str,
+    accuracy_thrshold: float = 0.90,
+    method: TemplateMatch = TemplateMatch.TM_CCOEFF_NORMED,
+    max_attemps: int = 10,
+) -> None:
+    print(element)
+    template = cv.imread(element, cv.IMREAD_UNCHANGED)
+
+    template_height, template_width = template.shape
+
+    for _ in range(0, max_attemps):
+        with mss.mss() as sct:
+            monitor = sct.monitors[0]
+
+            target_image = cv.cvtColor(
+                src=np.asarray(sct.grab(monitor)), code=cv.COLOR_RGBA2GRAY
+            )
+
+            res_image = cv.matchTemplate(target_image, template, method)
+
+            min_val_image, max_val_image, min_loc_image, max_loc_image = cv.minMaxLoc(
+                res_image
+            )
+
+            image_model = ImageModel(
+                method=method,
+                template_height=template_height,
+                template_width=template_width,
+                min_loc=min_loc_image,
+                max_loc=max_loc_image,
+                min_val=min_val_image,
+                max_val=max_val_image,
+            )
+
+            accuracy = image_model.accuracy()
+
+            if accuracy_thrshold < accuracy:
+                pyautogui.moveTo(*image_model.center())
+                pyautogui.click()
+                return
+            else:
+                pyautogui.scroll(-5)
+
+    raise GBFAutomataError(f"Element: <{element}> not found!")

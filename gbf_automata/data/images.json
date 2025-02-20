@@ -8,12 +8,12 @@
     "reload": "resources/main_menu/template_reload_gray.png"
   },
   "banner": {
-    "arcarum": "resource/main_menu/image_arcarum_gray.png",
-    "gw": "resource/main_menu/image_gw_gray.png"
+    "arcarum": "resources/main_menu/template_arcarum_gray.png",
+    "gw": "resources/main_menu/template_gw_gray.png"
   },
   "arcarum": {
     "classic": {
-      "button": "resource/arcarum/image_button_sandbox_gray.png"
+      "button": "resources/arcarum/image_button_sandbox_gray.png"
     },
     "sandbox": {
       "button": "resource/arcarum/image_button_classic_gray.png",

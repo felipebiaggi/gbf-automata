@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
 from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings
+
 from gbf_automata.enums.content_type import ContentType
-from gbf_automata.schema.arcarum_v2 import ArcarumV2Model
+from gbf_automata.models.arcarum_v2 import ArcarumV2Model
 
 load_dotenv()
 

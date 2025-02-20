@@ -1,15 +1,16 @@
-import sys
 import functools
-import websockets.sync.server
-
-from types import FrameType
+import sys
+from signal import SIGTERM, Signals, signal
 from socket import SHUT_RDWR
-from signal import Signals, SIGTERM, signal
+from types import FrameType
+
+import websockets.sync.server
 from websockets.sync.connection import Connection
+
 from gbf_automata.enums.state import State
+from gbf_automata.server.load_state import LoadState
 from gbf_automata.util.logger import get_logger
 from gbf_automata.util.settings import settings
-from gbf_automata.classes.load_state import LoadState
 
 logger = get_logger(__name__)
 
