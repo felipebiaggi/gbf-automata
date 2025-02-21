@@ -1,36 +1,34 @@
 import asyncio
 import multiprocessing
 
-from gbf_automata.models.render_manager import (
-    RenderManager,
-    RenderStatusManager,
+from gbf_automata.models.gbf_manager import (
+    GBFManager,
+    StatusManager,
 )
 from gbf_automata.server.gbf_websocket import GBFAutomataServer
 from gbf_automata.services.fsm import StateMachine
 
 
 def run_fsm(
-    send_queue: multiprocessing.Queue,
-    receive_queue: multiprocessing.Queue,
-    render_status_manager: RenderStatusManager,
+    message_queue: multiprocessing.Queue,
+    status_manager: StatusManager,
 ):
-    fsm = StateMachine(send_queue, receive_queue, render_status_manager)
+    fsm = StateMachine(message_queue, status_manager)
     fsm.run()
 
 
 def main():
-    send_queue = multiprocessing.Queue()
-    receive_queue = multiprocessing.Queue()
+    message_queue = multiprocessing.Queue()
 
-    manager = RenderManager()
+    manager = GBFManager()
     manager.start()
 
-    render_status_manager = manager.RenderStatusManager()
+    status_manager = manager.StatusManager()
 
-    server = GBFAutomataServer(send_queue, receive_queue, render_status_manager)
+    server = GBFAutomataServer(message_queue, status_manager)
 
     process = multiprocessing.Process(
-        target=run_fsm, args=(send_queue, receive_queue, render_status_manager)
+        target=run_fsm, args=(message_queue, status_manager)
     )
     process.start()
 

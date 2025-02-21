@@ -5,9 +5,11 @@ import numpy as np
 from gbf_automata.enums.game_states import GameStates
 from gbf_automata.enums.template_match import TemplateMatch
 from gbf_automata.exception.gbf_automata_exception import GBFAutomataError
-from gbf_automata.models.data import data_model
+from gbf_automata.models.data import get_data
 from gbf_automata.models.game_area import GameArea
 from gbf_automata.models.image import ImageModel
+
+data_model = get_data()
 
 
 def calibrate(game_state: GameStates, accuracy_threshold: float = 0.90) -> GameArea:
