@@ -92,7 +92,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     connect();
   }
 
-  if(["none", "block", "display-on", "display-off"].includes(message.message)){
+  if(["none", "block", "display-on", "display-off", "end-battle"].includes(message.message)){
     webSocket.send(message.message)
   }
 

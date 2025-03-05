@@ -10,7 +10,7 @@ from gbf_automata.models.image import ImageModel
 
 raid_dir = Path(__file__).parent.parent / "resources" / "raid"
 
-template_attack_buttom_path = raid_dir / "attack_buttom_gray.png"
+template_attack_buttom_path = raid_dir / "next_buttom_gray.png"
 
 MATCH_METHOD = TemplateMatch.TM_CCOEFF_NORMED
 

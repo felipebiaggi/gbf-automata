@@ -7,3 +7,4 @@ class GameStates(Enum):
     QUEST = "QUEST"
     MY_PAGE = "MY_PAGE"
     STOP = "STOP"
+    RESULT = "RESULT"

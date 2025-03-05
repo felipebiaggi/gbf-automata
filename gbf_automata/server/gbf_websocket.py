@@ -34,6 +34,7 @@ class GBFAutomataServer:
 
         try:
             async for message in websocket:
+                print(message)
                 if message == "none":
                     self.status_manager.set_render_status(RenderStatus.RENDERED)
 
@@ -45,6 +46,9 @@ class GBFAutomataServer:
 
                 if message == "display-off":
                     self.status_manager.set_combat_status(CombatStatus.STARTED)
+
+                if message == "end-battle":
+                    self.status_manager.set_combat_status(CombatStatus.ENDED)
 
         except websockets.exceptions.ConnectionClosed:
             pass

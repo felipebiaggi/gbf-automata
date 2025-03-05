@@ -19,6 +19,7 @@ class CombatStatus(str, Enum):
     NOT_INITIATED = "NOT_INITIATED"
     STARTED = "STARTED"
     STOPPED = "STOPPED"
+    ENDED = "ENDED"
 
 
 class StatusManager:
@@ -45,7 +46,8 @@ class StatusManager:
             while self.render_status != expected_render_status:
                 self.render_condition.wait()
 
-            self.render_status = RenderStatus.PENDING
+        print("render terminou, mudando para pending")
+        self.render_status = RenderStatus.PENDING
 
     def set_connection_status(self, new_connection_status: ConnectionStatus) -> None:
         with self.connection_condition:
@@ -72,7 +74,10 @@ class StatusManager:
 
     def wait_for_combat_status(self, expected_combat_status) -> None:
         with self.combat_condition:
-            while self.combat_status != expected_combat_status:
+            while self.combat_status not in (
+                expected_combat_status,
+                CombatStatus.ENDED,
+            ):
                 self.combat_condition.wait()
 
 

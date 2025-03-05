@@ -16,7 +16,7 @@ class RaidState(State):
             Message(
                 message_type=MessageType.EXTERNAL,
                 message_action=MessageAction.MOVE,
-                extra="https://game.granbluefantasy.jp/#replicard/supporter/10/10/6/819161/25",
+                extra="https://game.granbluefantasy.jp/#replicard/supporter/10/10/6/819041/25",
             )
         )
 
@@ -29,5 +29,10 @@ class RaidState(State):
             self.machine.status_manager.wait_for_combat_status(CombatStatus.STOPPED)
             sleep(1)
 
+            if self.machine.status_manager.get_combat_status() == CombatStatus.ENDED:
+                move(data_model.raid.next)
+                return GameStates.RESULT
+
             move(element=data_model.raid.attack)
+
         return GameStates.STOP

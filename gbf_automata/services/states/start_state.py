@@ -21,7 +21,9 @@ class StartState(State):
         self.machine.status_manager.wait_for_render_status(RenderStatus.RENDERED)
         sleep(1)
 
-        self.machine.game_area = calibrate(self.machine.get_current_state())
+        self.machine.game_area = calibrate(
+            game_state=self.machine.get_current_state(), accuracy_threshold=0.85
+        )
 
         print("calibrou")
 

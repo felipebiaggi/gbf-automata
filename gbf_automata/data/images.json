@@ -9,7 +9,8 @@
   },
   "raid": {
     "ok": "resources/raid/ok_buttom_gray.png",
-    "attack": "resources/raid/attack_buttom_gray.png"
+    "attack": "resources/raid/attack_buttom_gray.png",
+    "next": "resources/raid/next_buttom_gray.png"
   },
   "banner": {
     "arcarum": "resources/main_menu/template_arcarum_gray.png",

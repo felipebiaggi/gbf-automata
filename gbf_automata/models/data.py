@@ -81,6 +81,7 @@ class ArcarumModel(BaseModel):
 class RaidModel(BaseModel):
     ok: str
     attack: str
+    next: str
 
 
 class DataModel(BaseModel):

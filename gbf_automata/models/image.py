@@ -4,7 +4,6 @@ import numpy as np
 from cv2.typing import Point
 
 from gbf_automata.enums.template_match import TemplateMatch
-from gbf_automata.util.rng import rng
 
 
 class ImageModel:
@@ -75,12 +74,21 @@ class ImageModel:
             max_loc = (max_loc[0] + self.correction[0], max_loc[1] + self.correction[1])
 
         if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
+            # return (
+            #     np.trunc(min_loc[0] + (self.template_width * rng.random())),
+            #     np.trunc(min_loc[1] + (self.template_height * rng.random())),
+            # )
             return (
-                np.trunc(min_loc[0] + (self.template_width * rng.random())),
-                np.trunc(min_loc[1] + (self.template_height * rng.random())),
+                np.trunc(min_loc[0] + (self.template_width / 2)),
+                np.trunc(min_loc[1] + (self.template_height / 2)),
             )
 
+        # return (
+        #     np.trunc(max_loc[0] + (self.template_width * rng.random())),
+        #     np.trunc(max_loc[1] + (self.template_height * rng.random())),
+        # )
+
         return (
-            np.trunc(max_loc[0] + (self.template_width * rng.random())),
-            np.trunc(max_loc[1] + (self.template_height * rng.random())),
+            np.trunc(max_loc[0] + (self.template_width / 2)),
+            np.trunc(max_loc[1] + (self.template_height / 2)),
         )

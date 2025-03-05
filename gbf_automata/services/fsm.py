@@ -7,6 +7,7 @@ from gbf_automata.models.gbf_manager import StatusManager
 from gbf_automata.models.message import Message, MessageAction, MessageType
 from gbf_automata.services.states.base_state import State
 from gbf_automata.services.states.raid_state import RaidState
+from gbf_automata.services.states.result_state import ResultState
 from gbf_automata.services.states.start_state import StartState
 
 stop_message = Message(
@@ -26,6 +27,7 @@ class StateMachine:
         self.states = {
             GameStates.START: StartState(self),
             GameStates.RAID: RaidState(self),
+            GameStates.RESULT: ResultState(self),
         }
         self.current_state: State = self.states[GameStates.START]
 
@@ -37,6 +39,9 @@ class StateMachine:
                 next_state = self.current_state.execute()
 
                 if next_state == GameStates.RAID:
+                    self.current_state = self.states[next_state]
+
+                if next_state == GameStates.RESULT:
                     self.current_state = self.states[next_state]
 
                 if next_state == GameStates.STOP:
