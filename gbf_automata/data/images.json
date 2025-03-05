@@ -8,7 +8,8 @@
     "reload": "resources/main_menu/template_reload_gray.png"
   },
   "raid": {
-    "ok": "resources/raid/ok_buttom_gray.png"
+    "ok": "resources/raid/ok_buttom_gray.png",
+    "attack": "resources/raid/attack_buttom_gray.png"
   },
   "banner": {
     "arcarum": "resources/main_menu/template_arcarum_gray.png",

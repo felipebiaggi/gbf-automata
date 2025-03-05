@@ -4,23 +4,23 @@ function sendMsg(msg) {
   });
 }
 
-// const target = document.querySelector(".wrapper").querySelector(".contents");
+const target = document.querySelector(".wrapper").querySelector(".contents");
 
-// const observer_load = new MutationObserver(function (mutations) {
-//  mutations.forEach(function () {
-//    if (target.style.cssText === "display: none;") {
-//      sendMsg("block");
-//    }
+const observer_load = new MutationObserver(function (mutations) {
+ mutations.forEach(function () {
+   if (target.style.cssText === "display: none;") {
+     sendMsg("block");
+   }
 
-//    if (target.style.cssText === "display: block;") {
-//      sendMsg("none");
-//    }
-//  });
-// });
+   if (target.style.cssText === "display: block;") {
+     sendMsg("none");
+   }
+ });
+});
 
-// const config = { attributes: true, attributeOldValue: true };
+const config = { attributes: true, attributeOldValue: true };
 
-// observer_load.observe(target, config);
+observer_load.observe(target, config);
 
 function observeRaidSelector() {
   const raid_selector = document
@@ -39,43 +39,36 @@ function observeRaidSelector() {
     } else {
       sendMsg("btn-attack-start loaded");
 
-      let last_state = null;
+      let initial_state = null;
+      let is_display_on = null;
 
-      const checkState = () => {
+      const checkState = function () {
         const current_class = btn_attack.className;
-        const is_display_on = current_class.includes("display-on");
-        const is_display_off = current_class.includes("display-off");
+        const has_display_on = current_class.includes("display-on");
+        const has_display_off = current_class.includes("display-off");
 
-        if (last_state === null) {
-          last_state = is_display_on
-            ? "on"
-            : is_display_off
-              ? "off"
-              : "unknown";
-          if (last_state === "on") {
-            sendMsg("🟢 Estado inicial: ATIVADO (display-on).");
-          } else if (last_state === "off") {
-            sendMsg("🔴 Estado inicial: DESATIVADO (display-off).");
-          } else {
-            sendMsg(`ℹ️ Estado inicial desconhecido: ${current_class}`);
+        if (initial_state === null) {
+          initial_state = current_class;
+          is_display_on = has_display_on;
+
+          if (has_display_on) {
+            sendMsg("display-on");
+          } else if (has_display_off) {
+            sendMsg("display-off");
           }
           return;
         }
 
-        if (last_state === "off" && is_display_on) {
-          sendMsg(
-            "🟢 Botão mudou de DESATIVADO (display-off) para ATIVADO (display-on).",
-          );
-          last_state = "on";
-        } else if (last_state === "on" && is_display_off) {
-          sendMsg(
-            "🔴 Botão mudou de ATIVADO (display-on) para DESATIVADO (display-off).",
-          );
-          last_state = "off";
+        if (has_display_on && !is_display_on) {
+          sendMsg("display-on");
+          is_display_on = true;
+        } else if (has_display_off && is_display_on) {
+          sendMsg("display-off");
+          is_display_on = false;
         }
-      };
 
-      checkState();
+        initial_state = current_class;
+      };
 
       const observer_attack = new MutationObserver(checkState);
 

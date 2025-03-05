@@ -15,12 +15,22 @@ class ConnectionStatus(str, Enum):
     CONNECTED = "CONNECTED"
 
 
+class CombatStatus(str, Enum):
+    NOT_INITIATED = "NOT_INITIATED"
+    STARTED = "STARTED"
+    STOPPED = "STOPPED"
+
+
 class StatusManager:
     def __init__(self):
         self.render_status = RenderStatus.PENDING
         self.render_condition = multiprocessing.Condition()
+
         self.connection_status = ConnectionStatus.DISCONNECTED
         self.connection_condition = multiprocessing.Condition()
+
+        self.combat_status = CombatStatus.NOT_INITIATED
+        self.combat_condition = multiprocessing.Condition()
 
     def set_render_status(self, new_render_status: RenderStatus) -> None:
         with self.render_condition:
@@ -51,6 +61,19 @@ class StatusManager:
                 self.connection_condition.wait()
 
             self.connection_status = ConnectionStatus.DISCONNECTED
+
+    def set_combat_status(self, new_combat_status: CombatStatus) -> None:
+        with self.combat_condition:
+            self.combat_status = new_combat_status
+            self.combat_condition.notify_all()
+
+    def get_combat_status(self) -> CombatStatus:
+        return self.combat_status
+
+    def wait_for_combat_status(self, expected_combat_status) -> None:
+        with self.combat_condition:
+            while self.combat_status != expected_combat_status:
+                self.combat_condition.wait()
 
 
 class GBFManager(BaseManager):

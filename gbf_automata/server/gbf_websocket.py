@@ -4,6 +4,7 @@ import multiprocessing
 import websockets
 
 from gbf_automata.models.gbf_manager import (
+    CombatStatus,
     ConnectionStatus,
     RenderStatus,
     StatusManager,
@@ -38,6 +39,12 @@ class GBFAutomataServer:
 
                 if message == "block":
                     self.status_manager.set_render_status(RenderStatus.PENDING)
+
+                if message == "display-on":
+                    self.status_manager.set_combat_status(CombatStatus.STOPPED)
+
+                if message == "display-off":
+                    self.status_manager.set_combat_status(CombatStatus.STARTED)
 
         except websockets.exceptions.ConnectionClosed:
             pass

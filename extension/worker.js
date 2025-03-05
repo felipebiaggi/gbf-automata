@@ -87,15 +87,14 @@ function keepAlive() {
   }, 5000);
 }
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  
-  // if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
-  //   connect();
-  // }
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { 
+  if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
+    connect();
+  }
 
-  // if (["none", "block"].includes(message.message)) {
-  //   webSocket.send(message.message);
-  // }
+  if(["none", "block", "display-on", "display-off"].includes(message.message)){
+    webSocket.send(message.message)
+  }
 
   console.log(`Message: <${message.message}>`)
 });
