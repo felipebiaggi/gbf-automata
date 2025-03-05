@@ -87,14 +87,23 @@ function keepAlive() {
   }, 5000);
 }
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
     connect();
   }
 
-  if(["none", "block", "display-on", "display-off", "end-battle"].includes(message.message)){
-    webSocket.send(message.message)
+  if (
+    [
+      "none",
+      "block",
+      "display-on",
+      "display-off",
+      "end-battle",
+      "content-result",
+    ].includes(message.message)
+  ) {
+    webSocket.send(message.message);
   }
 
-  console.log(`Message: <${message.message}>`)
+  console.log(`Message: <${message.message}>`);
 });

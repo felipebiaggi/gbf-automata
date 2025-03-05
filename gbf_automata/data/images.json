@@ -12,6 +12,9 @@
     "attack": "resources/raid/attack_buttom_gray.png",
     "next": "resources/raid/next_buttom_gray.png"
   },
+  "result": {
+    "ok": "resources/result/ok_buttom_gray.png"
+  },
   "banner": {
     "arcarum": "resources/main_menu/template_arcarum_gray.png",
     "gw": "resources/main_menu/template_gw_gray.png"

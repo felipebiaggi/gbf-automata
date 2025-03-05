@@ -22,6 +22,11 @@ class CombatStatus(str, Enum):
     ENDED = "ENDED"
 
 
+class ResultStatus(str, Enum):
+    AVAILABLE = "AVAILABLE"
+    UNAVAILABLE = "UNAVAILABLE"
+
+
 class StatusManager:
     def __init__(self):
         self.render_status = RenderStatus.PENDING
@@ -32,6 +37,9 @@ class StatusManager:
 
         self.combat_status = CombatStatus.NOT_INITIATED
         self.combat_condition = multiprocessing.Condition()
+
+        self.result_status = ResultStatus.UNAVAILABLE
+        self.result_condition = multiprocessing.Condition()
 
     def set_render_status(self, new_render_status: RenderStatus) -> None:
         with self.render_condition:
@@ -46,7 +54,6 @@ class StatusManager:
             while self.render_status != expected_render_status:
                 self.render_condition.wait()
 
-        print("render terminou, mudando para pending")
         self.render_status = RenderStatus.PENDING
 
     def set_connection_status(self, new_connection_status: ConnectionStatus) -> None:
@@ -79,6 +86,21 @@ class StatusManager:
                 CombatStatus.ENDED,
             ):
                 self.combat_condition.wait()
+
+    def set_result_status(self, new_result_status: ResultStatus) -> None:
+        with self.result_condition:
+            self.result_status = new_result_status
+            self.result_condition.notify_all()
+
+    def get_result_status(self) -> ResultStatus:
+        return self.result_status
+
+    def wait_for_result_status(self, expected_result_status) -> None:
+        with self.result_condition:
+            while self.result_status != expected_result_status:
+                self.result_condition.wait()
+
+        self.result_status = ResultStatus.UNAVAILABLE
 
 
 class GBFManager(BaseManager):

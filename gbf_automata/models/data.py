@@ -84,9 +84,14 @@ class RaidModel(BaseModel):
     next: str
 
 
+class ResultModel(BaseModel):
+    ok: str
+
+
 class DataModel(BaseModel):
     main: MainModel
     raid: RaidModel
+    result: ResultModel
     banner: BannerModel
     arcarum: ArcarumModel
 

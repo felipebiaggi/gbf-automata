@@ -7,6 +7,7 @@ from gbf_automata.models.gbf_manager import (
     CombatStatus,
     ConnectionStatus,
     RenderStatus,
+    ResultStatus,
     StatusManager,
 )
 from gbf_automata.models.message import Message, MessageAction, MessageType
@@ -34,12 +35,11 @@ class GBFAutomataServer:
 
         try:
             async for message in websocket:
-                print(message)
                 if message == "none":
-                    self.status_manager.set_render_status(RenderStatus.RENDERED)
+                    self.status_manager.set_render_status(RenderStatus.PENDING)
 
                 if message == "block":
-                    self.status_manager.set_render_status(RenderStatus.PENDING)
+                    self.status_manager.set_render_status(RenderStatus.RENDERED)
 
                 if message == "display-on":
                     self.status_manager.set_combat_status(CombatStatus.STOPPED)
@@ -49,6 +49,9 @@ class GBFAutomataServer:
 
                 if message == "end-battle":
                     self.status_manager.set_combat_status(CombatStatus.ENDED)
+
+                if message == "content-result":
+                    self.status_manager.set_result_status(ResultStatus.AVAILABLE)
 
         except websockets.exceptions.ConnectionClosed:
             pass
