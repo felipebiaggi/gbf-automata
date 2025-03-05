@@ -5,6 +5,7 @@ from gbf_automata.models.data import get_data
 from gbf_automata.models.gbf_manager import RenderStatus
 from gbf_automata.models.message import Message, MessageAction, MessageType
 from gbf_automata.services.states.base_state import State
+from gbf_automata.util.move import move
 
 data_model = get_data()
 
@@ -22,6 +23,8 @@ class RaidState(State):
         self.machine.status_manager.wait_for_render_status(RenderStatus.RENDERED)
         sleep(1)
 
-        print("summon")
+        move(data_model.raid.ok)
+
+        print(data_model.raid.ok)
 
         return GameStates.STOP

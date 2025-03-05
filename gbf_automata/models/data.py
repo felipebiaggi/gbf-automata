@@ -78,8 +78,13 @@ class ArcarumModel(BaseModel):
     sandbox: ArcarumSandboxModel
 
 
+class RaidModel(BaseModel):
+    ok: str
+
+
 class DataModel(BaseModel):
     main: MainModel
+    raid: RaidModel
     banner: BannerModel
     arcarum: ArcarumModel
 

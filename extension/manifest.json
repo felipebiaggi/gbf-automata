@@ -3,12 +3,12 @@
   "name": "Granblue Fantasy: Request Analyzer",
   "version": "1.0",
   "background": {
-    "service_worker": "worker.bundle.js",
+    "service_worker": "worker.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "js": ["content.bundle.js"],
+      "js": ["content.js"],
       "matches": ["https://game.granbluefantasy.jp/*"]
     }
   ],
