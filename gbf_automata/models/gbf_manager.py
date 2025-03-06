@@ -50,6 +50,7 @@ class StatusManager:
         return self.render_status
 
     def wait_for_render_status(self, expected_render_status) -> None:
+        self.render_status = RenderStatus.PENDING
         with self.render_condition:
             while self.render_status != expected_render_status:
                 self.render_condition.wait()

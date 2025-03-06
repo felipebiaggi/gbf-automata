@@ -13,7 +13,8 @@
     "next": "resources/raid/next_buttom_gray.png"
   },
   "result": {
-    "ok": "resources/result/ok_buttom_gray.png"
+    "ok": "resources/result/ok_buttom_gray.png",
+    "play_again": "resources/result/play_again_buttom_gray.png"
   },
   "banner": {
     "arcarum": "resources/main_menu/template_arcarum_gray.png",

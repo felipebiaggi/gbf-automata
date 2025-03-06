@@ -8,3 +8,4 @@ class GameStates(Enum):
     MY_PAGE = "MY_PAGE"
     STOP = "STOP"
     RESULT = "RESULT"
+    SUPPORTER = "SUPPORTER"

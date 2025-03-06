@@ -17,4 +17,4 @@ class StartState(State):
 
         self.machine.status_manager.wait_for_render_status(RenderStatus.RENDERED)
 
-        return GameStates.RAID
+        return GameStates.SUPPORTER

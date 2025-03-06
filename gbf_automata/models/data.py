@@ -86,6 +86,7 @@ class RaidModel(BaseModel):
 
 class ResultModel(BaseModel):
     ok: str
+    play_again: str
 
 
 class DataModel(BaseModel):

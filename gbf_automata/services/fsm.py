@@ -9,6 +9,7 @@ from gbf_automata.services.states.base_state import State
 from gbf_automata.services.states.raid_state import RaidState
 from gbf_automata.services.states.result_state import ResultState
 from gbf_automata.services.states.start_state import StartState
+from gbf_automata.services.states.supporter_state import SupporterState
 
 stop_message = Message(
     message_type=MessageType.INTERNAL,
@@ -26,6 +27,7 @@ class StateMachine:
         self.message_queue: multiprocessing.Queue = message_queue
         self.states = {
             GameStates.START: StartState(self),
+            GameStates.SUPPORTER: SupporterState(self),
             GameStates.RAID: RaidState(self),
             GameStates.RESULT: ResultState(self),
         }
@@ -37,6 +39,9 @@ class StateMachine:
         try:
             while True:
                 next_state = self.current_state.execute()
+
+                if next_state == GameStates.SUPPORTER:
+                    self.current_state = self.states[next_state]
 
                 if next_state == GameStates.RAID:
                     self.current_state = self.states[next_state]
