@@ -7,6 +7,9 @@ from gbf_automata.models.gbf_manager import (
 )
 from gbf_automata.server.gbf_websocket import GBFAutomataServer
 from gbf_automata.services.fsm import StateMachine
+from gbf_automata.util.logger import get_logger
+
+logger = get_logger()
 
 
 def run_fsm(
@@ -35,7 +38,7 @@ def main():
     try:
         asyncio.run(server.run())
     except KeyboardInterrupt:
-        print("\n🛑 Server manually stopped.")
+        logger.info("[MAIN] Server manually stopped.")
     finally:
         process.terminate()
         process.join()

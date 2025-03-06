@@ -1,5 +1,4 @@
 import multiprocessing
-from logging import exception
 
 from gbf_automata.enums.game_states import GameStates
 from gbf_automata.models.game_area import GameArea
@@ -10,6 +9,9 @@ from gbf_automata.services.states.raid_state import RaidState
 from gbf_automata.services.states.result_state import ResultState
 from gbf_automata.services.states.start_state import StartState
 from gbf_automata.services.states.supporter_state import SupporterState
+from gbf_automata.util.logger import get_logger
+
+logger = get_logger()
 
 stop_message = Message(
     message_type=MessageType.INTERNAL,
@@ -37,8 +39,11 @@ class StateMachine:
 
     def run(self) -> None:
         try:
+            logger.info("[State Machine] Startup")
             while True:
                 next_state = self.current_state.execute()
+
+                logger.info(f"[State Machine] State Trasition: {next_state}")
 
                 if next_state == GameStates.SUPPORTER:
                     self.current_state = self.states[next_state]
@@ -53,7 +58,7 @@ class StateMachine:
                     self.message_queue.put(stop_message)
                     break
         except Exception as e:
-            print(f"Error {e}")
+            logger.warning(f"[State Machine] Error: {e}")
             self.message_queue.put(stop_message)
 
     def get_current_state(self) -> GameStates:

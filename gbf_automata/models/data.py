@@ -13,73 +13,11 @@ class MainModel(BaseModel):
     reload: str
 
 
-class BannerModel(BaseModel):
-    arcarum: str
-    gw: str
-
-
-class ArcarumClassicModel(BaseModel):
-    button: str
-
-
-class ArcarumSandboxEletioModel(BaseModel):
-    banner: str
-    slithering_seductress: str
-
-
-class ArcarumSandboxFaymModel(BaseModel):
-    banner: str
-
-
-class ArcarumSandboxGoliathModel(BaseModel):
-    banner: str
-
-
-class ArcarumSandboxHarbingerModel(BaseModel):
-    banner: str
-
-
-class ArcarumSandboxInvidiaModel(BaseModel):
-    banner: str
-
-
-class ArcarumSandboxJoculatorModel(BaseModel):
-    banner: str
-
-
-class ArcarumSandboxKalendaeModel(BaseModel):
-    banner: str
-
-
-class ArcarumSandboxLiberModel(BaseModel):
-    banner: str
-
-
-class ArcarumZonesModel(BaseModel):
-    back_stage: str
-    forward_stage: str
-    eletio: ArcarumSandboxEletioModel
-    faym: ArcarumSandboxFaymModel
-    goliath: ArcarumSandboxGoliathModel
-    harbinger: ArcarumSandboxHarbingerModel
-    invidia: ArcarumSandboxInvidiaModel
-    joculator: ArcarumSandboxJoculatorModel
-    kalendae: ArcarumSandboxKalendaeModel
-    liber: ArcarumSandboxLiberModel
-
-
-class ArcarumSandboxModel(BaseModel):
-    button: str
-    zones: ArcarumZonesModel
-
-
-class ArcarumModel(BaseModel):
-    classic: ArcarumClassicModel
-    sandbox: ArcarumSandboxModel
+class SupporterModel(BaseModel):
+    ok: str
 
 
 class RaidModel(BaseModel):
-    ok: str
     attack: str
     next: str
 
@@ -91,10 +29,9 @@ class ResultModel(BaseModel):
 
 class DataModel(BaseModel):
     main: MainModel
+    supporter: SupporterModel
     raid: RaidModel
     result: ResultModel
-    banner: BannerModel
-    arcarum: ArcarumModel
 
     class Config:
         extra = "ignore"

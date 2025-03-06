@@ -1,11 +1,8 @@
-from dotenv import load_dotenv
-from pydantic import Field, field_validator
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
 
-from gbf_automata.enums.content_type import ContentType
-from gbf_automata.models.arcarum_v2 import ArcarumV2Model
-
-load_dotenv()
+env_path = Path(__file__).parent.parent / ".env"
 
 
 class Settings(BaseSettings):
@@ -14,19 +11,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_format: str = "[%(asctime)s] [%(levelname)s] [%(thread)s] - %(message)s"
 
-    content_type: ContentType = Field(default=None)
-    arcarum_v2: ArcarumV2Model = Field(default=None)
-
-    @field_validator("content_type", mode="before")
-    @classmethod
-    def str_to_enum(cls, value: str) -> ContentType:
-        for member in ContentType:
-            if member.name.lower() == value.lower():
-                return member
-        raise TypeError("Invalid Enum")
-
     class Config:
-        env_file = ".env"
+        env_file = env_path
         envi_file_encoding = "utf-8"
 
 

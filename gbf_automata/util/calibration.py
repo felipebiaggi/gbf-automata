@@ -68,7 +68,7 @@ def calibrate(game_state: GameStates, accuracy_threshold: float = 0.90) -> GameA
         for name, accuracy in game_area.accuracy():
             if accuracy < accuracy_threshold:
                 raise GBFAutomataError(
-                    f"Accuracy Error - Threshold: <{accuracy_threshold}> - Mensured: <{accuracy}> - Element: <{name}>"
+                    f"Accuracy Error - Threshold: {accuracy_threshold}\n Mensured: {accuracy}\n Element: {name}"
                 )
 
         return game_area

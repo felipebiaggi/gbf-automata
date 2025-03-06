@@ -11,6 +11,10 @@ from gbf_automata.models.gbf_manager import (
     StatusManager,
 )
 from gbf_automata.models.message import Message, MessageAction, MessageType
+from gbf_automata.util.logger import get_logger
+from gbf_automata.util.settings import settings
+
+logger = get_logger()
 
 
 class GBFAutomataServer:
@@ -29,12 +33,14 @@ class GBFAutomataServer:
     async def handler(self, websocket, path):
         client_ip, client_port = websocket.remote_address
         self.clients.add(websocket)
-        print(f"[+] New client connected: {client_ip}:{client_port}")
+        logger.info(f"[SERVER] New client connected: {client_ip}:{client_port}")
 
         self.status_manager.set_connection_status(ConnectionStatus.CONNECTED)
 
         try:
             async for message in websocket:
+                logger.debug(f"[SERVER] Client message: {message}")
+
                 if message == "none":
                     self.status_manager.set_render_status(RenderStatus.PENDING)
 
@@ -56,25 +62,29 @@ class GBFAutomataServer:
         except websockets.exceptions.ConnectionClosed:
             pass
         finally:
-            print(f"[-] Client disconnected: {client_ip}:{client_port}")
+            logger.info(f"[SERVER] Client disconnected: {client_ip}:{client_port}")
             if websocket in self.clients:
                 self.clients.remove(websocket)
 
     async def start_server(self):
-        self.server = await websockets.serve(self.handler, "127.0.0.1", 12000)
-        print("[SERVER] WebSocket Server started on ws://127.0.0.1:12000")
+        self.server = await websockets.serve(self.handler, settings.host, settings.port)
+        logger.info(
+            f"[SERVER] WebSocket Server started on ws://{settings.host}:{settings.port}"
+        )
 
     async def fsm_incoming_messages(self):
         while not self.stop_event.is_set():
             message: Message = await asyncio.to_thread(self.message_queue.get)
 
-            print(f"FSM Message {message}")
+            logger.debug(f"[SERVER] Queue message: {message}")
 
             if (
                 message.message_type == MessageType.INTERNAL
                 and message.message_action == MessageAction.STOP
             ):
-                print("[!] Stop event detected, shutting down WebSocket Server...")
+                logger.info(
+                    "[SERVER] Stop event detected, shutting down WebSocket Server..."
+                )
                 self.stop_event.set()
 
                 for client in self.clients:
@@ -105,9 +115,9 @@ class GBFAutomataServer:
         except asyncio.CancelledError:
             pass
         except KeyboardInterrupt:
-            print("[!] Shutting down server...")
+            logger.info("[SERVER] Shutting down server...")
         finally:
             if self.server:
                 self.server.close()
                 await self.server.wait_closed()
-                print("[X] WebSocket Server closed.")
+                logger.info("[SERVER] WebSocket Server closed.")
