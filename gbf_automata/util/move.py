@@ -17,36 +17,39 @@ def move(
 
     template_height, template_width = template.shape
 
-    with mss.mss() as sct:
-        monitor = sct.monitors[0]
+    for i in range(0, 3):
+        with mss.mss() as sct:
+            monitor = sct.monitors[0]
 
-        target_image = cv.cvtColor(
-            src=np.asarray(sct.grab(monitor)), code=cv.COLOR_RGBA2GRAY
-        )
-
-        res_image = cv.matchTemplate(target_image, template, method)
-
-        min_val_image, max_val_image, min_loc_image, max_loc_image = cv.minMaxLoc(
-            res_image
-        )
-
-        image_model = ImageModel(
-            method=method,
-            template_height=template_height,
-            template_width=template_width,
-            min_loc=min_loc_image,
-            max_loc=max_loc_image,
-            min_val=min_val_image,
-            max_val=max_val_image,
-        )
-
-        accuracy = image_model.accuracy()
-
-        if accuracy < accuracy_threshold:
-            raise GBFAutomataError(
-                f"Accuracy Error - Threshold: <{accuracy_threshold}> - Mensured: <{accuracy}> - Element: <{element}>"
+            target_image = cv.cvtColor(
+                src=np.asarray(sct.grab(monitor)), code=cv.COLOR_RGBA2GRAY
             )
 
-        pyautogui.moveTo(*image_model.center())
+            res_image = cv.matchTemplate(target_image, template, method)
 
-        pyautogui.click()
+            min_val_image, max_val_image, min_loc_image, max_loc_image = cv.minMaxLoc(
+                res_image
+            )
+
+            image_model = ImageModel(
+                method=method,
+                template_height=template_height,
+                template_width=template_width,
+                min_loc=min_loc_image,
+                max_loc=max_loc_image,
+                min_val=min_val_image,
+                max_val=max_val_image,
+            )
+
+            accuracy = image_model.accuracy()
+
+            pyautogui.moveTo(*image_model.center())
+
+            pyautogui.click()
+
+            return
+
+    if accuracy < accuracy_threshold:
+        raise GBFAutomataError(
+            f"Accuracy Error - Threshold: <{accuracy_threshold}> - Mensured: <{accuracy}> - Element: <{element}>"
+        )

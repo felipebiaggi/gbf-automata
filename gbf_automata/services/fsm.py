@@ -39,11 +39,11 @@ class StateMachine:
 
     def run(self) -> None:
         try:
-            logger.info("[State Machine] Startup")
+            logger.info("[STATE MACHINE] Startup")
             while True:
                 next_state = self.current_state.execute()
 
-                logger.info(f"[State Machine] State Trasition: {next_state}")
+                logger.info(f"[STATE MACHINE] State Trasition: {next_state}")
 
                 if next_state == GameStates.SUPPORTER:
                     self.current_state = self.states[next_state]
@@ -58,11 +58,5 @@ class StateMachine:
                     self.message_queue.put(stop_message)
                     break
         except Exception as e:
-            logger.warning(f"[State Machine] Error: {e}")
+            logger.warning(f"[STATE MACHINE] Error: {e}")
             self.message_queue.put(stop_message)
-
-    def get_current_state(self) -> GameStates:
-        for state_enum, state_class in self.states.items():
-            if isinstance(self.current_state, type(state_class)):
-                return state_enum
-        raise exception()

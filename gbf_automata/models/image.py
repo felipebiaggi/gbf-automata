@@ -4,6 +4,10 @@ import numpy as np
 from cv2.typing import Point
 
 from gbf_automata.enums.template_match import TemplateMatch
+from gbf_automata.util.logger import get_logger
+from gbf_automata.util.rng import rng_uniform
+
+logger = get_logger()
 
 
 class ImageModel:
@@ -68,27 +72,22 @@ class ImageModel:
         min_loc = self.min_loc
         max_loc = self.max_loc
 
+        offset_widht = rng_uniform(10)
+        offset_height = rng_uniform(10)
+
         if correction:
             min_loc = (min_loc[0] + self.correction[0], min_loc[1] + self.correction[1])
-
             max_loc = (max_loc[0] + self.correction[0], max_loc[1] + self.correction[1])
 
         if self.method in [TemplateMatch.TM_SQDIFF, TemplateMatch.TM_SQDIFF_NORMED]:
-            # return (
-            #     np.trunc(min_loc[0] + (self.template_width * rng.random())),
-            #     np.trunc(min_loc[1] + (self.template_height * rng.random())),
-            # )
-            return (
-                np.trunc(min_loc[0] + (self.template_width / 2)),
-                np.trunc(min_loc[1] + (self.template_height / 2)),
-            )
+            width = np.trunc(min_loc[0] + (self.template_width / 2)) + offset_widht
+            height = np.trunc(min_loc[1] + (self.template_height / 2)) + offset_height
 
-        # return (
-        #     np.trunc(max_loc[0] + (self.template_width * rng.random())),
-        #     np.trunc(max_loc[1] + (self.template_height * rng.random())),
-        # )
+            logger.debug(f"[IMAGE MODEL] Width: {width} - Height: {height}")
+            return width, height
 
-        return (
-            np.trunc(max_loc[0] + (self.template_width / 2)),
-            np.trunc(max_loc[1] + (self.template_height / 2)),
-        )
+        width = np.trunc(max_loc[0] + (self.template_width / 2)) + offset_widht
+        height = np.trunc(max_loc[1] + (self.template_height / 2)) + offset_height
+
+        logger.debug(f"[IMAGE MODEL] Width: {width} - Height: {height}")
+        return width, height
