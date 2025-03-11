@@ -1,9 +1,9 @@
 import logging
 from logging import Logger
 
-from gbf_automata.util.application_settings import settings
+from gbf_automata.util.settings import settings
 
-logging.basicConfig(level=settings.log_level, format=settings.log_format)
+logging.basicConfig(level=settings.log.level, format=settings.log.format)
 
 
 def get_logger(name: str | None = None) -> Logger:

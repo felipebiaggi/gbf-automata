@@ -1,7 +1,10 @@
 import json
-from functools import lru_cache
+from pathlib import Path
 
 from pydantic import BaseModel
+from pydantic_settings import BaseSettings
+
+images_path = Path(__file__).parent.parent.parent / "images_path.json"
 
 
 class MainModel(BaseModel):
@@ -27,7 +30,7 @@ class ResultModel(BaseModel):
     play_again: str
 
 
-class DataModel(BaseModel):
+class Images(BaseSettings):
     main: MainModel
     supporter: SupporterModel
     raid: RaidModel
@@ -36,10 +39,12 @@ class DataModel(BaseModel):
     class Config:
         extra = "ignore"
 
+    @classmethod
+    def load_json(cls, path: Path) -> "Images":
+        with open(path, "rb") as images_path_file:
+            images_data = json.load(images_path_file)
 
-@lru_cache()
-def get_data() -> DataModel:
-    with open("gbf_automata/data/images.json") as file:
-        file_dict = json.load(file)  # dict
+        return cls(**images_data)
 
-        return DataModel.model_validate(file_dict)
+
+images = Images.load_json(images_path)

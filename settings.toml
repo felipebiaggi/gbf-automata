@@ -1,0 +1,12 @@
+[server]
+host='127.0.0.1'
+port='12000'
+
+[log]
+level='INFO'
+format='[%(asctime)s] [%(levelname)s] [%(thread)s] - %(message)s'
+
+
+[raid]
+url=''
+runs=100

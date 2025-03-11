@@ -9,7 +9,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].bundle.js",
+    filename: "[name].js",
   },
   module: {
     rules: [
@@ -24,9 +24,7 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin({
-      patterns: [
-        { from: "extension/manifest.json", to: "." }, // Copia o manifest.json para dist/
-      ],
+      patterns: [{ from: "extension/manifest.json", to: "." }],
     }),
   ],
 };

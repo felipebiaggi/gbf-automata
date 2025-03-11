@@ -11,8 +11,8 @@ from gbf_automata.models.gbf_manager import (
     StatusManager,
 )
 from gbf_automata.models.message import Message, MessageAction, MessageType
-from gbf_automata.util.application_settings import settings
 from gbf_automata.util.logger import get_logger
+from gbf_automata.util.settings import settings
 
 logger = get_logger()
 
@@ -67,9 +67,11 @@ class GBFAutomataServer:
                 self.clients.remove(websocket)
 
     async def start_server(self):
-        self.server = await websockets.serve(self.handler, settings.host, settings.port)
+        self.server = await websockets.serve(
+            self.handler, settings.server.host, settings.server.port
+        )
         logger.info(
-            f"[SERVER] WebSocket Server started on ws://{settings.host}:{settings.port}"
+            f"[SERVER] WebSocket Server started on ws://{settings.server.host}:{settings.server.port}"
         )
 
     async def fsm_incoming_messages(self):
@@ -117,6 +119,7 @@ class GBFAutomataServer:
         except KeyboardInterrupt:
             logger.info("[SERVER] Shutting down server...")
         finally:
+            self.stop_event.set()
             if self.server:
                 self.server.close()
                 await self.server.wait_closed()
