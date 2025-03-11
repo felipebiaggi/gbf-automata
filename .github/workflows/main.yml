@@ -3,7 +3,7 @@ name: Release Workflow
 on:
   push:
     tags:
-     - 'v*'
+      - 'v*'
   release:
     types:
       - published
@@ -47,13 +47,6 @@ jobs:
           cd release/extension
           zip -r extension.zip ./*
 
-      # - name: Package full repository for Python
-      #   run: |
-      #     mkdir -p release/python
-      #     cp -r ./* release/python/
-      #     cd release/python
-      #     zip -r python_files.zip ./*
-
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -66,18 +59,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Baixar os artefatos gerados (extensão e arquivos Python)
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
           name: release-files
 
-      # 2. Criar um novo release no GitHub e anexar os arquivos ZIP
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            - release/extension/extension.zip
+          files: release/extension/extension.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
