@@ -47,12 +47,12 @@ jobs:
           cd release/extension
           zip -r extension.zip ./*
 
-      - name: Package full repository for Python
-        run: |
-          mkdir -p release/python
-          cp -r ./* release/python/
-          cd release/python
-          zip -r python_files.zip ./*
+      # - name: Package full repository for Python
+      #   run: |
+      #     mkdir -p release/python
+      #     cp -r ./* release/python/
+      #     cd release/python
+      #     zip -r python_files.zip ./*
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
@@ -60,7 +60,6 @@ jobs:
           name: release-files
           path: |
             release/extension/extension.zip
-            release/python/python_files.zip
           
   release:
     needs: build
