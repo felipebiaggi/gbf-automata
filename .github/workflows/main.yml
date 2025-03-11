@@ -1,0 +1,82 @@
+name: Release Workflow
+
+on:
+  push:
+    tags:
+     - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '23'
+          
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Install Python dependencies
+        run: poetry install
+
+      - name: Run webpack build
+        run: npm run build
+
+      - name: Package Chromium Extension
+        run: |
+          mkdir -p release/extension
+          cp -r dist/* release/extension/
+          cd release/extension
+          zip -r extension.zip ./*
+
+      - name: Package full repository for Python
+        run: |
+          mkdir -p release/python
+          cp -r ./* release/python/
+          cd release/python
+          zip -r python_files.zip ./*
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-files
+          path: |
+            release/extension/extension.zip
+            release/python/python_files.zip
+          
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixar os artefatos gerados (extensão e arquivos Python)
+      - name: Download release artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: release-files
+
+      # 2. Criar um novo release no GitHub e anexar os arquivos ZIP
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            - release/extension/extension.zip
+            - release/python/python_files.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
