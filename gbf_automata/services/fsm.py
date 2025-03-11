@@ -37,6 +37,8 @@ class StateMachine:
 
         self.game_area: GameArea
 
+        self.runs = 1
+
     def run(self) -> None:
         try:
             logger.info("[STATE MACHINE] Startup")

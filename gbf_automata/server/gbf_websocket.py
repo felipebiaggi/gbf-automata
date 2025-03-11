@@ -11,8 +11,8 @@ from gbf_automata.models.gbf_manager import (
     StatusManager,
 )
 from gbf_automata.models.message import Message, MessageAction, MessageType
+from gbf_automata.util.application_settings import settings
 from gbf_automata.util.logger import get_logger
-from gbf_automata.util.settings import settings
 
 logger = get_logger()
 

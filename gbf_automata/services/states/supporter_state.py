@@ -6,6 +6,7 @@ from gbf_automata.services.states.base_state import State
 from gbf_automata.util.delay import random_delay
 from gbf_automata.util.logger import get_logger
 from gbf_automata.util.move import move
+from gbf_automata.util.player_settings import player_setting
 
 data_model = get_data()
 
@@ -15,17 +16,22 @@ logger = get_logger()
 class SupporterState(State):
     def execute(self) -> GameStates:
         logger.info("[SUPPORTER STATE] Execution")
-        self.machine.message_queue.put(
-            Message(
-                message_type=MessageType.EXTERNAL,
-                message_action=MessageAction.MOVE,
-                extra="https://game.granbluefantasy.jp/#quest/supporter/927841/1/0/10585",
+        if self.machine.runs <= player_setting.raid.runs:
+            logger.info(f"[SUPPORTER STATE] Starting run {self.machine.runs}")
+
+            self.machine.message_queue.put(
+                Message(
+                    message_type=MessageType.EXTERNAL,
+                    message_action=MessageAction.MOVE,
+                    extra=player_setting.raid.url,
+                )
             )
-        )
 
-        self.machine.status_manager.wait_for_render_status(RenderStatus.RENDERED)
-        random_delay()
+            self.machine.status_manager.wait_for_render_status(RenderStatus.RENDERED)
+            random_delay()
 
-        move(data_model.supporter.ok)
+            move(data_model.supporter.ok)
 
-        return GameStates.RAID
+            return GameStates.RAID
+
+        return GameStates.STOP

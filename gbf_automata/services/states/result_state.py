@@ -13,10 +13,11 @@ logger = get_logger()
 class ResultState(State):
     def execute(self) -> GameStates:
         logger.info("[RESULT STATE] Execution")
+
+        # Increment the run counter
+        self.machine.runs += 1
+
         self.machine.status_manager.wait_for_result_status(ResultStatus.AVAILABLE)
         random_delay()
-
-        # move(data_model.result.ok)
-        # random_delay()
 
         return GameStates.SUPPORTER
